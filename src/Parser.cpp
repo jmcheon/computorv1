@@ -141,9 +141,9 @@ int getOperatorPrecedence(const Token& token)
 
 bool hasHigherPrecedence(const Token& op1, const Token& op2)
 {
-    int op1 = getOperatorPrecedence(op1);
-    int op2 = getOperatorPrecedence(op2);
-    return (op1 > op2);
+    int precedence_op1 = getOperatorPrecedence(op1);
+    int precedence_op2 = getOperatorPrecedence(op2);
+    return (precedence_op1 > precedence_op2);
 }
 
 
