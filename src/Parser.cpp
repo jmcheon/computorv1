@@ -11,15 +11,15 @@ std::vector<Term>	Parser::extract(const std::vector<Token>& tokens)
 
     for (const Token& token : tokens)
 	{
-        if (token.type == TokenType::COEFFICIENT)
+        if (token.m_type == TokenType::COEFFICIENT)
 		{
             // Coefficient found at an unexpected position, invalid syntax
             if (!expecting_coef)
                 throw std::runtime_error("Invalid equation syntax coef");
-            current_term.coefficient = token.value;//std::stod(token.value);
+            current_term.coefficient = token.m_value;//std::stod(token.m_value);
             expecting_coef = false;
         }
-		else if (token.type == TokenType::MULTIPLICATION)
+		else if (token.m_type == TokenType::MULTIPLICATION)
 		{
             // Multiplication operator found before coefficient, invalid syntax
             if (expecting_coef)
@@ -27,44 +27,37 @@ std::vector<Term>	Parser::extract(const std::vector<Token>& tokens)
             expecting_coef = true;
             expecting_variable = true;
         }
-		else if (token.type == TokenType::VARIABLE)
+		else if (token.m_type == TokenType::VARIABLE)
 		{
             // Variable found before coefficient, invalid syntax
             if (!expecting_variable)
                 throw std::runtime_error("Invalid equation syntax variable");
-            current_term.variable = token.value;
+            current_term.variable = token.m_value;
             expecting_variable = false;
-			std::cout << possible_token.value << std::endl;
+			std::cout << possible_token.m_value << std::endl;
 			/*
 			result = expectToken(TokenType::DEGREE);
 			if (result == possible_token)
 				throw std::runtime_error("no degree");
 				*/
         }
-		else if (token.type == TokenType::DEGREE)
+		else if (token.m_type == TokenType::DEGREE)
 		{
             // Degree operator found before coefficient, invalid syntax
             if (expecting_variable)
                 throw std::runtime_error("Invalid equation syntax ^");
             expecting_variable = false;
         }
-		else if (token.type == TokenType::EXPONENT)
+		else if (token.m_type == TokenType::EXPONENT)
 		{
             // Exponent found before coefficient, invalid syntax
             if (!expecting_coef)
                 throw std::runtime_error("Invalid equation syntax exponent");
-            current_term.exponent = token.value;//std::stoi(token.value);
+            current_term.exponent = token.m_value;//std::stoi(token.m_value);
             expecting_coef = true;
-            terms.push_back(current_term); // Add the term to the list
+            terms.push_back(current_term);
         }
     }
-	/*
-    // If the last token was an exponent, add the current term
-    if (expecting_coef)
-        throw std::runtime_error("Invalid equation syntax");
-	*/
-    //terms.push_back(current_term);
-
     return terms;
 }
 
@@ -78,15 +71,15 @@ std::vector<Term>	Parser::extractTerms(const std::vector<Token>& tokens)
 
     for (const Token& token : tokens)
 	{
-        if (token.type == TokenType::COEFFICIENT)
+        if (token.m_type == TokenType::COEFFICIENT)
 		{
             // Coefficient found at an unexpected position, invalid syntax
             if (!expecting_coef)
                 throw std::runtime_error("Invalid equation syntax coef");
-            current_term.coefficient = token.value;//std::stod(token.value);
+            current_term.coefficient = token.m_value;//std::stod(token.m_value);
             expecting_coef = false;
         }
-		else if (token.type == TokenType::MULTIPLICATION)
+		else if (token.m_type == TokenType::MULTIPLICATION)
 		{
             // Multiplication operator found before coefficient, invalid syntax
             if (expecting_coef)
@@ -94,47 +87,40 @@ std::vector<Term>	Parser::extractTerms(const std::vector<Token>& tokens)
             expecting_coef = true;
             expecting_variable = true;
         }
-		else if (token.type == TokenType::VARIABLE)
+		else if (token.m_type == TokenType::VARIABLE)
 		{
             // Variable found before coefficient, invalid syntax
             if (!expecting_variable)
                 throw std::runtime_error("Invalid equation syntax variable");
-            current_term.variable = token.value;
+            current_term.variable = token.m_value;
             expecting_variable = false;
         }
-		else if (token.type == TokenType::DEGREE)
+		else if (token.m_type == TokenType::DEGREE)
 		{
             // Degree operator found before coefficient, invalid syntax
             if (expecting_variable)
                 throw std::runtime_error("Invalid equation syntax ^");
             expecting_variable = false;
-			std::cout << "pt:" << possible_token.value << std::endl;
+			std::cout << "pt:" << possible_token.m_value << std::endl;
         }
-		else if (token.type == TokenType::EXPONENT)
+		else if (token.m_type == TokenType::EXPONENT)
 		{
             // Exponent found before coefficient, invalid syntax
             if (!expecting_coef)
                 throw std::runtime_error("Invalid equation syntax exponent");
-            current_term.exponent = token.value;//std::stoi(token.value);
+            current_term.exponent = token.m_value;//std::stoi(token.m_value);
             expecting_coef = true;
-            terms.push_back(current_term); // Add the term to the list
+            terms.push_back(current_term);
         }
     }
-	/*
-    // If the last token was an exponent, add the current term
-    if (expecting_coef)
-        throw std::runtime_error("Invalid equation syntax");
-	*/
-    //terms.push_back(current_term);
-
     return terms;
 }
 
 int getOperatorPrecedence(const Token& token)
 {
-    if (token.value == "*" || token.value == "/" || token.value == "^")
+    if (token.m_value == "*" || token.m_value == "/" || token.m_value == "^")
 		return 2;
-    else if (token.value == "+" || token.value == "-")
+    else if (token.m_value == "+" || token.m_value == "-")
 		return 1;
 	return 0;
 }
@@ -154,7 +140,7 @@ std::vector<Token> Parser::convertToRPN(const std::vector<Token>& tokens)
 
     for (const Token& token : tokens)
 	{
-        switch (token.type)
+        switch (token.m_type)
 		{
             case TokenType::IDENTIFIER:
                 output_queue.push_back(token);
@@ -168,13 +154,13 @@ std::vector<Token> Parser::convertToRPN(const std::vector<Token>& tokens)
                 operator_stack.push(token);
                 break;
             default:
-                throw std::runtime_error("Invalid token type encountered");
+                throw std::runtime_error("Invalid token m_type encountered");
         }
     }
 
     while (!operator_stack.empty())
 	{
-        if (operator_stack.top().type == TokenType::WHITESPACE)
+        if (operator_stack.top().m_type == TokenType::WHITESPACE)
 		{
             throw std::runtime_error("Invalid equation syntax");
         }
@@ -192,9 +178,9 @@ std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 	for (const Token& token : rpn_tokens)
 	{
 		//token.debugPrint();
-		if (token.type == TokenType::IDENTIFIER)
-			stack.push(std::make_unique<IdentifierNode>(token.value));
-		else if (token.type == TokenType::OPERATOR)
+		if (token.m_type == TokenType::IDENTIFIER)
+			stack.push(std::make_unique<IdentifierNode>(token.m_value));
+		else if (token.m_type == TokenType::OPERATOR)
 		{
 			if (stack.size() < 2)
 				throw std::runtime_error("Invalid formula: Not enough operands");
@@ -202,7 +188,7 @@ std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 			stack.pop();
 			std::unique_ptr<RPNNode> left = std::move(stack.top());
 			stack.pop();
-			stack.push(std::make_unique<BinaryOperatorNode>(token.value, std::move(left), std::move(right)));
+			stack.push(std::make_unique<BinaryOperatorNode>(token.m_value, std::move(left), std::move(right)));
 		}
 		else
 			throw std::runtime_error("Invalid formula: Unexpected symbol");
@@ -212,11 +198,6 @@ std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 	return std::move(stack.top());
 }
 
-void	Term::debugPrint() const
-{
-	std::cout << "Term(" << coefficient << " * " << variable << " ^ " << exponent << ")" << std::endl;
-}
-
 std::vector<Term>		Parser::parse(std::vector<Token>& tokens)
 {
 	std::vector<Term>	terms;
@@ -224,9 +205,12 @@ std::vector<Term>		Parser::parse(std::vector<Token>& tokens)
 	for (Token& token : tokens)
 	{
 		token.debugPrint();
-		if (token.type == TokenType::COEFFICIENT)
+		if (token.m_type == TokenType::IDENTIFIER)
 		{
 			
+		}
+		else if (token.m_type == TokenType::IDENTIFIER)
+		{
 		}
 	}
 //	terms = extractTerms(tokens);
@@ -245,17 +229,17 @@ bool					Parser::checkValidSyntax(const std::vector<Token>& tokens)
 
 	for (const Token& token : tokens)
 	{
-		if (token.type == TokenType::VARIABLE)
+		if (token.m_type == TokenType::VARIABLE)
 		{
-			if (!variable.empty() && token.value != variable)
+			if (!variable.empty() && token.m_value != variable)
 			{
-				std::cout << "Invalid syntax: unknown variable " << token.value << std::endl;
+				std::cout << "Invalid syntax: unknown variable " << token.m_value << std::endl;
 				return false;
 			}
-			variable = token.value;
+			variable = token.m_value;
 			variable_count++;
 		}
-		else if (token.type == TokenType::EQUATION)
+		else if (token.m_type == TokenType::EQUATION)
 		{
 			if (equal_sign)
 			{
@@ -264,33 +248,33 @@ bool					Parser::checkValidSyntax(const std::vector<Token>& tokens)
 			}
 			equal_sign = true;
 		}
-		else if (token.type == TokenType::COEFFICIENT)
+		else if (token.m_type == TokenType::COEFFICIENT)
 		{
 			if (variable.empty())
 			{
-				std::cout << "Invalid syntax" << token.value << std::endl;
+				std::cout << "Invalid syntax" << token.m_value << std::endl;
 				return false;
 			}
 		}
 	}
 }
 
-bool	Parser::expectToken(Token& token, TokenType type)
+bool	Parser::expectToken(Token& token, TokenType m_type)
 {
-	if (token.type != type)
+	if (token.m_type != m_type)
 		return (false);
 	return (true);
 }
 
-Token		Parser::expectToken(TokenType type, const std::string& name)
+Token		Parser::expectToken(TokenType m_type, const std::string& name)
 {
 	Token return_token;
 
 	if (m_current_token== m_end_token)
 		return return_token;
-	if (m_current_token->type != type)
+	if (m_current_token->m_type != m_type)
 		return return_token;
-	if (!name.empty() && m_current_token->value != name)
+	if (!name.empty() && m_current_token->m_value != name)
 		return return_token;
 
 	return_token = *m_current_token;

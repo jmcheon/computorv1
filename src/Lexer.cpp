@@ -6,8 +6,8 @@ std::vector<Token>	Lexer::tokenize2(const std::string& texts)
 	Token						current_token;
 	std::string::const_iterator	it;
 	
-	current_token.type = TokenType::WHITESPACE;
-	current_token.token_num = 0;
+	current_token.m_type = TokenType::WHITESPACE;
+	current_token.m_token_num = 0;
 	for (it = texts.begin(); it != texts.end(); ++it)
 	{
 		switch (*it)
@@ -25,19 +25,19 @@ std::vector<Token>	Lexer::tokenize2(const std::string& texts)
 			case '^':
 			case '/':
 				endToken(current_token, tokens);
-				current_token.type = TokenType::OPERATOR;
-				current_token.value.append(1, *it);
+				current_token.m_type = TokenType::OPERATOR;
+				current_token.m_value.append(1, *it);
 				endToken(current_token, tokens);
 				break ;
 			default:
-				if (current_token.type == TokenType::WHITESPACE)
+				if (current_token.m_type == TokenType::WHITESPACE)
 				{
 					endToken(current_token, tokens);
-					current_token.type = TokenType::IDENTIFIER;
-					current_token.value.append(1, *it);
+					current_token.m_type = TokenType::IDENTIFIER;
+					current_token.m_value.append(1, *it);
 				}
 				else 
-					current_token.value.append(1, *it);
+					current_token.m_value.append(1, *it);
 				break ;
 		}
 	}
@@ -52,8 +52,8 @@ std::vector<Token>	Lexer::tokenize(const std::string& texts)
 	Token						current_token;
 	std::string::const_iterator	it;
 	
-	current_token.type = TokenType::WHITESPACE;
-	current_token.token_num = 0;
+	current_token.m_type = TokenType::WHITESPACE;
+	current_token.m_token_num = 0;
 	for (it = texts.begin(); it != texts.end(); ++it)
 	{
 		switch (*it)
@@ -66,43 +66,43 @@ std::vector<Token>	Lexer::tokenize(const std::string& texts)
 
 			case '+':
 				endToken(current_token, tokens);
-				current_token.type = TokenType::PLUS;
-				current_token.value.append(1, *it);
+				current_token.m_type = TokenType::PLUS;
+				current_token.m_value.append(1, *it);
 				endToken(current_token, tokens);
 				break ;
 			case '-':
 				endToken(current_token, tokens);
-				current_token.type = TokenType::MINUS;
-				current_token.value.append(1, *it);
+				current_token.m_type = TokenType::MINUS;
+				current_token.m_value.append(1, *it);
 				endToken(current_token, tokens);
 				break ;
 			case '*':
 				endToken(current_token, tokens);
-				current_token.type = TokenType::MULTIPLICATION;
-				current_token.value.append(1, *it);
+				current_token.m_type = TokenType::MULTIPLICATION;
+				current_token.m_value.append(1, *it);
 				endToken(current_token, tokens);
 				break ;
 			case '=':
 				endToken(current_token, tokens);
-				current_token.type = TokenType::EQUATION;
-				current_token.value.append(1, *it);
+				current_token.m_type = TokenType::EQUATION;
+				current_token.m_value.append(1, *it);
 				endToken(current_token, tokens);
 				break ;
 			case '^':
 				endToken(current_token, tokens);
-				current_token.type = TokenType::DEGREE;
-				current_token.value.append(1, *it);
+				current_token.m_type = TokenType::DEGREE;
+				current_token.m_value.append(1, *it);
 				endToken(current_token, tokens);
 				break ;
 			default:
-				if (current_token.type == TokenType::WHITESPACE)
+				if (current_token.m_type == TokenType::WHITESPACE)
 				{
 					endToken(current_token, tokens);
-					current_token.type = TokenType::IDENTIFIER;
-					current_token.value.append(1, *it);
+					current_token.m_type = TokenType::IDENTIFIER;
+					current_token.m_value.append(1, *it);
 				}
 				else 
-					current_token.value.append(1, *it);
+					current_token.m_value.append(1, *it);
 				break ;
 		}
 	}
@@ -113,22 +113,22 @@ std::vector<Token>	Lexer::tokenize(const std::string& texts)
 
 void	Lexer::endToken(Token& token, std::vector<Token>& tokens)
 {
-	if (token.type != TokenType::WHITESPACE)
+	if (token.m_type != TokenType::WHITESPACE)
 	{
-		if (token.type == TokenType::IDENTIFIER && !token.value.empty() && std::isdigit(token.value[0]))
+		if (token.m_type == TokenType::IDENTIFIER && !token.m_value.empty() && std::isdigit(token.m_value[0]))
 		{
 			//token.debugPrint();
 			// treat the token as the exponent of the previous variable token
 			Token prev_token = tokens.empty() ? Token() : tokens.back();
 			//prev_token.debugPrint();
-			if (prev_token.type == TokenType::DEGREE)
-				token.type = TokenType::EXPONENT;
+			if (prev_token.m_type == TokenType::DEGREE)
+				token.m_type = TokenType::EXPONENT;
 		}
-		token.token_num += 1;
+		token.m_token_num += 1;
 		tokens.push_back(token);
 	}
-	token.type = TokenType::WHITESPACE;
-	token.value.erase();
+	token.m_type = TokenType::WHITESPACE;
+	token.m_value.erase();
 }
 
 void	Lexer::modifyIdentifierToken(std::vector<Token>& tokens)
@@ -138,14 +138,14 @@ void	Lexer::modifyIdentifierToken(std::vector<Token>& tokens)
 	
 	for (; m_current_token != m_end_token; ++m_current_token)
 	{
-		if (m_current_token->type == TokenType::IDENTIFIER)
+		if (m_current_token->m_type == TokenType::IDENTIFIER)
 		{
 			//(*(m_current_token + 1)).debugPrint();
-			if ((*(m_current_token + 1)).type == TokenType::MULTIPLICATION)
-				m_current_token->type = TokenType::COEFFICIENT;
-			else if ((*(m_current_token - 1)).type == TokenType::MULTIPLICATION
-					&& (*(m_current_token + 1)).type == TokenType::DEGREE)
-				m_current_token->type = TokenType::VARIABLE;
+			if ((*(m_current_token + 1)).m_type == TokenType::MULTIPLICATION)
+				m_current_token->m_type = TokenType::COEFFICIENT;
+			else if ((*(m_current_token - 1)).m_type == TokenType::MULTIPLICATION
+					&& (*(m_current_token + 1)).m_type == TokenType::DEGREE)
+				m_current_token->m_type = TokenType::VARIABLE;
 		}
 	}
 }

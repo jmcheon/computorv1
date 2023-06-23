@@ -36,10 +36,9 @@ static const char* sTokenTypeStrings[] = {
 class Token
 {
 	public:
-		TokenType 	type;
-		std::string	value;
-		size_t		token_num;
-		//bool		is_error;
+		TokenType 	m_type;
+		std::string	m_value;
+		size_t		m_token_num;
 
 	public:
 		void		debugPrint() const;
