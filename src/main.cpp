@@ -18,15 +18,30 @@ void	printTokens(std::vector<Token>& tokens)
 int main(int argc, char** argv)
 {
 	Lexer	lexer;
-	//Parser	parser;
+	Parser	parser;
 	std::vector<Token> tokens;
+	std::vector<Token> rpn_tokens;
 	std::vector<Term> terms;
+	std::unique_ptr<RPNNode> tree;
 
 	if (argc == 2)
 	{
-		tokens = lexer.tokenize(argv[1]);
-		printTokens(tokens);
-		//terms = parser.parse(tokens);
+		tokens = lexer.tokenize2(argv[1]);
+		try
+		{
+			rpn_tokens = parser.convertToRPN(tokens);
+			for (Token& token : rpn_tokens)
+				token.printRPN();
+			std::cout << std::endl;
+			tree = parser.buildTree(rpn_tokens);
+			printTree(tree.get());
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << "Exception caught: " << e.what() << std::endl;
+		}
+		//printTokens(tokens);
+		terms = parser.parse(tokens);
 		//solveEquation(terms);
 	}
 	else

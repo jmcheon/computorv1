@@ -12,6 +12,7 @@ enum class TokenType
 	MULTIPLICATION, // *
 	EQUATION, // =
 	DEGREE, // ^
+	OPERATOR,
 	IDENTIFIER,
 	VARIABLE,
 	COEFFICIENT,
@@ -25,6 +26,7 @@ static const char* sTokenTypeStrings[] = {
 	"MULTIPLICATION", // *
 	"EQUATION", // =
 	"DEGREE", // ^
+	"OPERATOR",
 	"IDENTIFIER",
 	"VARIABLE",
 	"COEFFICIENT",
@@ -37,9 +39,11 @@ class Token
 		TokenType 	type;
 		std::string	value;
 		size_t		token_num;
+		//bool		is_error;
 
 	public:
 		void		debugPrint() const;
+		void		printRPN() const;
 		Token		copy() const;
 };
 #endif

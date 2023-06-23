@@ -7,6 +7,8 @@ INCLUDES = ./
 SRCS =	main.cpp \
 		Token.cpp \
       	Lexer.cpp \
+		Parser.cpp \
+		RPNtree.cpp
 
 
 OBJS_DIR = obj/

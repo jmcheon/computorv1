@@ -4,6 +4,10 @@ void	Token::debugPrint() const
 {
 	std::cout << "Token(" << sTokenTypeStrings[static_cast<int>(type)] << ", \"" << value << "\", " << token_num << ")" << std::endl;
 }
+void	Token::printRPN() const
+{
+	std::cout << value;
+}
 
 Token	Token::copy() const
 {
