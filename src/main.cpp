@@ -35,13 +35,13 @@ int main(int argc, char** argv)
 			std::cout << std::endl;
 			tree = parser.buildTree(rpn_tokens);
 			printTree(tree.get());
+			terms = parser.parse(tokens);
 		}
 		catch (const std::exception& e)
 		{
 			std::cout << "Exception caught: " << e.what() << std::endl;
 		}
 		//printTokens(tokens);
-		terms = parser.parse(tokens);
 		//solveEquation(terms);
 	}
 	else

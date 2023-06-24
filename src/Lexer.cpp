@@ -17,13 +17,11 @@ std::vector<Token>	Lexer::tokenize2(const std::string& texts)
 			case '\n':
 				endToken(current_token, tokens);
 				break ;
-
 			case '+':
 			case '-':
 			case '*':
 			case '=':
 			case '^':
-			case '/':
 				endToken(current_token, tokens);
 				current_token.m_type = TokenType::OPERATOR;
 				current_token.m_value.append(1, *it);

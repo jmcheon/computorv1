@@ -2,7 +2,7 @@
 
 void	Term::debugPrint() const
 {
-	std::cout << "Term(" << coefficient << " * " << variable << " ^ " << exponent << ")" << std::endl;
+	std::cout << "Term(" << m_coefficient << " * " << m_variable << " ^ " << m_exponent << ")" << std::endl;
 }
 
 void	printNode(const RPNNode* node)

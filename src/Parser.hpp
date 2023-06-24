@@ -7,14 +7,24 @@
 #include <map>
 #include <stack>
 #include <cstdlib>
+#include <regex>
 #include "Lexer.hpp"
 #include "Token.hpp"
 #include "RPNtree.hpp"
 
+# define YELLOW "\033[0;38;5;220m"
+# define GREEN "\033[0;38;5;42m"
+# define RED "\033[0;38;5;196m"
+# define BLUE "\033[0;38;5;21m"
+# define PINK "\033[0;38;5;205m"
+# define PURPLE "\033[0;38;5;93m"
+# define ORANGE "\033[38;5;202m"
+# define FIN "\033[0m"
 class Parser
 {
 	private:
 		std::vector<Token>::iterator	m_current_token;
+		std::vector<Token>::iterator	m_op_token;
 		std::vector<Token>::iterator	m_start_token;
 		std::vector<Token>::iterator	m_end_token;
 		size_t							m_max_token_num;
@@ -29,10 +39,12 @@ class Parser
 		bool					checkValidSyntax(const std::vector<Token>& tokens);
 
 		// Empty string means match any string.
+		void					expectOperator(std::vector<Token>::iterator current_token);
 		Token					expectToken(TokenType type, const std::string& name = std::string());
 		bool					expectToken(Token& token, TokenType type);
-		std::vector<Term> 		extractTerms(const std::vector<Token>& tokens);
-		std::vector<Term> 		extract(const std::vector<Token>& tokens);
+		void					extractTerm(std::vector<Term>& terms);
+
+		bool					isValidTerm(std::vector<Token>::iterator current_token);
 };
 
 double		calculateSquareRoot(double x, double precision);
