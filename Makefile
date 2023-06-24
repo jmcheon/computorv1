@@ -8,7 +8,8 @@ SRCS =	main.cpp \
 		Token.cpp \
       	Lexer.cpp \
 		Parser.cpp \
-		RPNtree.cpp
+		RPNtree.cpp \
+		Term.cpp 
 
 
 OBJS_DIR = obj/

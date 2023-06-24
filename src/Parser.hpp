@@ -10,6 +10,7 @@
 #include <regex>
 #include "Lexer.hpp"
 #include "Token.hpp"
+#include "Term.hpp"
 #include "RPNtree.hpp"
 
 # define YELLOW "\033[0;38;5;220m"
@@ -25,9 +26,7 @@ class Parser
 	private:
 		std::vector<Token>::iterator	m_current_token;
 		std::vector<Token>::iterator	m_op_token;
-		std::vector<Token>::iterator	m_start_token;
 		std::vector<Token>::iterator	m_end_token;
-		size_t							m_max_token_num;
 
 	public:
 		//Parser();
@@ -35,15 +34,10 @@ class Parser
 		std::vector<Token>		convertToRPN(const std::vector<Token>& tokens);
 		std::unique_ptr<RPNNode>	buildTree(const std::vector<Token>& rpn_tokens);
 	private:
-		void					printCurrentTokenInfo(std::string func_name);
-		bool					checkValidSyntax(const std::vector<Token>& tokens);
-
-		// Empty string means match any string.
 		void					expectOperator(std::vector<Token>::iterator current_token);
 		Token					expectToken(TokenType type, const std::string& name = std::string());
 		bool					expectToken(Token& token, TokenType type);
 		void					extractTerm(std::vector<Term>& terms);
-
 		bool					isValidTerm(std::vector<Token>::iterator current_token);
 };
 

@@ -10,28 +10,27 @@ void	runtimeException(const std::string& str, const std::string& value = std::st
 	throw std::runtime_error(error_message.str());
 }
 
-bool	isNumber(const std::string& str)
+static bool	isNumber(const std::string& str)
 {
 	// Regular expression pattern for matching integer or double numbers
 	std::regex pattern("^\\d+(\\.\\d+)?$");
-	
 	// Match the pattern against the input string
 	return std::regex_match(str, pattern);
 }
 
-bool		isInteger(const std::string& str)
+static bool		isInteger(const std::string& str)
 {
 	std::regex pattern("^\\d+?$");
 	return std::regex_match(str, pattern);
 }
 
-bool		isDouble(const std::string& str)
+static bool		isDouble(const std::string& str)
 {
 	std::regex pattern("^(\\.\\d+)?$");
 	return std::regex_match(str, pattern);
 }
 
-bool	isPotentialVariable(const std::string& str)
+static bool	isPotentialVariable(const std::string& str)
 {
 	char	variable;
 	if (str.length() != 1)
@@ -40,7 +39,7 @@ bool	isPotentialVariable(const std::string& str)
 	return std::isalpha(variable);
 }
 
-int getOperatorPrecedence(const Token& token)
+static int getOperatorPrecedence(const Token& token)
 {
     if (token.m_value == "*" || token.m_value == "/" || token.m_value == "^")
 		return 2;
@@ -49,13 +48,12 @@ int getOperatorPrecedence(const Token& token)
 	return 0;
 }
 
-bool hasHigherPrecedence(const Token& op1, const Token& op2)
+static bool hasHigherPrecedence(const Token& op1, const Token& op2)
 {
     int precedence_op1 = getOperatorPrecedence(op1);
     int precedence_op2 = getOperatorPrecedence(op2);
     return (precedence_op1 > precedence_op2);
 }
-
 
 std::vector<Token> Parser::convertToRPN(const std::vector<Token>& tokens)
 {
@@ -78,16 +76,14 @@ std::vector<Token> Parser::convertToRPN(const std::vector<Token>& tokens)
                 operator_stack.push(token);
                 break;
             default:
-                throw std::runtime_error("Invalid token m_type encountered");
+				runtimeException("Invalid token type encountered");
         }
     }
 
     while (!operator_stack.empty())
 	{
         if (operator_stack.top().m_type == TokenType::WHITESPACE)
-		{
-            throw std::runtime_error("Invalid equation syntax");
-        }
+			runtimeException("Invalid equation syntax");
         output_queue.push_back(operator_stack.top());
         operator_stack.pop();
     }
@@ -107,14 +103,12 @@ std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 		{
 			if (!isNumber(token.m_value) && !isPotentialVariable(token.m_value))
 				runtimeException("Invalid identifier", token.m_value);
-				//throw std::runtime_error("Invalid identifier");
 			stack.push(std::make_unique<IdentifierNode>(token.m_value));
 		}
 		else if (token.m_type == TokenType::OPERATOR)
 		{
 			if (stack.size() < 2)
-				runtimeException("Invalid formula: Not enough operands");
-				//throw std::runtime_error("Invalid formula: Not enough operands");
+				runtimeException("Invalid equation: Not enough operands");
 			std::unique_ptr<RPNNode> right = std::move(stack.top());
 			stack.pop();
 			std::unique_ptr<RPNNode> left = std::move(stack.top());
@@ -125,20 +119,16 @@ std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 				if (!valid_equation)
 					valid_equation = true;
 				else
-					runtimeException("Invalid equation '='");
-					//throw std::runtime_error("Invalid equation '='");
+					runtimeException("Invalid syntax: Multiple equations found");
 			}
 		}
 		else
 			runtimeException("Invalid equation: Unexpected symbol", token.m_value);
-			//throw std::runtime_error("Invalid formula: Unexpected symbol");
 	}
 	if (stack.size() != 1)
-		runtimeException("Invalid formula: Too many operands");
-		//throw std::runtime_error("Invalid formula: Too many operands");
+		runtimeException("Invalid equation: Too many operands");
 	if (!valid_equation)
-		runtimeException("Invalid equation '='");
-		//throw std::runtime_error("Invalid equation '='");
+		runtimeException("Invalid syntax: equation not found");
 	return std::move(stack.top());
 }
 
@@ -154,7 +144,6 @@ bool	Parser::isValidTerm(std::vector<Token>::iterator current_token)
 		{
 			if (star_count <  degree_count)
 				runtimeException("Invalid order", current_token->m_value);
-				//throw std::runtime_error("Invalid order");
 			else if (current_token->m_value == "*")
 				star_count++;
 			else if (current_token->m_value == "^")
@@ -180,9 +169,9 @@ bool	Parser::isValidTerm(std::vector<Token>::iterator current_token)
 		}
 
 		if (star_count > 1)
-			throw std::runtime_error("Invalid multiple '*' in a term");
+			runtimeException("Invalid multiple '*' in a term");
 		if (degree_count > 1)
-			throw std::runtime_error("Invalid multiple '^' in a term");
+			runtimeException("Invalid multiple '^' in a term");
 	}
 }
 void	Parser::extractTerm(std::vector<Term>& terms)
@@ -192,9 +181,7 @@ void	Parser::extractTerm(std::vector<Term>& terms)
     bool	expecting_variable = true;
     bool	expecting_exponent = true;
 
-	//std::cout << m_current_token->m_value << m_current_token->m_token_num << std::endl;
-	std::cout << m_op_token->m_value << m_op_token->m_token_num << std::endl;
-	//std::cout << m_end_token->m_value << m_end_token->m_token_num << std::endl;
+	//std::cout << m_op_token->m_value << m_op_token->m_token_num << std::endl;
 	isValidTerm(m_current_token);
 	for (; m_current_token != m_op_token; ++m_current_token)
 	{
@@ -212,10 +199,6 @@ void	Parser::extractTerm(std::vector<Term>& terms)
             	{
             	    term.setExponent(m_current_token->m_value);
             	    expecting_exponent = false;
-            	}
-            	else
-            	{
-            	    // Invalid token order, handle error or throw an exception
             	}
 				/*
 				//current_token->m_type == TokenType::COEFFICIENT;
@@ -257,9 +240,6 @@ void	Parser::extractTerm(std::vector<Term>& terms)
         }
         else if (m_current_token->m_type == TokenType::OPERATOR)
         {
-            // Handle operator, if necessary
-            // For example, check for multiplication or exponentiation operators
-            // and update the expecting variables accordingly
             if (m_current_token->m_value == "*")
             {
                 expecting_variable = true;
@@ -269,16 +249,10 @@ void	Parser::extractTerm(std::vector<Term>& terms)
                 expecting_exponent = true;
             }
         }
-        else
-        {
-            // Unexpected token type, handle error or throw an exception
-        }
     }
 	terms.push_back(term);
-    // Perform any additional checks or validations here if needed
 	if (m_op_token == m_end_token)
 		m_current_token--;
-	//std::cout << m_current_token->m_value << m_current_token->m_token_num << std::endl;
 }
 
 
@@ -340,7 +314,6 @@ void		Parser::expectOperator(std::vector<Token>::iterator current_token)
 		if (current_token == m_end_token - 1)
 		{
 			m_op_token = m_end_token;
-			std::cout << "op" <<  m_op_token->m_value << std::endl;
 			return ;
 		}
 	}
@@ -349,77 +322,28 @@ void		Parser::expectOperator(std::vector<Token>::iterator current_token)
 std::vector<Term>		Parser::parse(std::vector<Token>& tokens)
 {
 	std::vector<Term>	terms;
-	Term				term;
-	std::string			variable;
 
 	m_current_token = tokens.begin();
-	m_start_token = tokens.begin();
 	m_op_token = tokens.end();
 	m_end_token = tokens.end();
 
-	std::cout << tokens.size() << std::endl;
 	for (; m_current_token != m_end_token; ++m_current_token)
-	//for (Token& token : tokens)
 	{
 		//m_current_token->debugPrint();
 		if (m_current_token->m_type == TokenType::IDENTIFIER)
 		{
 			expectOperator(m_current_token);
-			m_start_token = m_current_token;
 			extractTerm(terms);
-			//m_current_token = m_start_token;
 			for (auto& term : terms)
 				term.debugPrint();
 			//if (term.getVariable().empty() && term.getExponent() != 0)
 			//	throw std::runtime_error("Invalid syntax");
-		//	std::cout << isInteger(m_current_token->m_value) << std::endl;
-		//	std::cout << isDouble(m_current_token->m_value) << std::endl;
-			//std::cout << isNumber(m_current_token->m_value) << std::endl;
-			
 		}
 		else if (m_current_token->m_type == TokenType::IDENTIFIER)
 		{
 		}
 	}
 	return terms;
-}
-
-bool					Parser::checkValidSyntax(const std::vector<Token>& tokens)
-{
-	int	variable_count = 0;
-	bool	equal_sign = false;
-	std::string variable;
-
-	for (const Token& token : tokens)
-	{
-		if (token.m_type == TokenType::VARIABLE)
-		{
-			if (!variable.empty() && token.m_value != variable)
-			{
-				std::cout << "Invalid syntax: unknown variable " << token.m_value << std::endl;
-				return false;
-			}
-			variable = token.m_value;
-			variable_count++;
-		}
-		else if (token.m_type == TokenType::EQUATION)
-		{
-			if (equal_sign)
-			{
-				std::cout << "Invalid syntax: Multiple equations found." << std::endl;
-				return false;
-			}
-			equal_sign = true;
-		}
-		else if (token.m_type == TokenType::COEFFICIENT)
-		{
-			if (variable.empty())
-			{
-				std::cout << "Invalid syntax" << token.m_value << std::endl;
-				return false;
-			}
-		}
-	}
 }
 
 bool	Parser::expectToken(Token& token, TokenType m_type)
