@@ -9,10 +9,8 @@ void	printTokens(std::vector<Token>& tokens)
 {
 	std::cout << "\t\t <Print tokenized tokens>\n";
 	std::cout << "example: Token(token type, text, token number)\n\n";
-	std::vector<Token>::iterator	current_token_iter = tokens.begin();
-	std::vector<Token>::iterator	end_token_iter = tokens.end();
-	for (;current_token_iter != end_token_iter; ++current_token_iter)
-		current_token_iter->debugPrint();
+	for (auto it = tokens.begin(); it != tokens.end() ; ++it)
+		it->debugPrint();
 }
 
 int main(int argc, char** argv)

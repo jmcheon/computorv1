@@ -7,9 +7,6 @@
 
 class Lexer 
 {
-	private:
-		std::vector<Token>::iterator	m_current_token;
-		std::vector<Token>::iterator	m_end_token;
 	public:
 		std::vector<Token>	 			tokenize(const std::string& texts);
 	private:

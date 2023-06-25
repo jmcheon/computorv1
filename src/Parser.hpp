@@ -24,7 +24,6 @@ class Parser
 {
 	private:
 		std::vector<Token>::iterator	m_current_token;
-		std::vector<Token>::iterator	m_op_token;
 		std::vector<Token>::iterator	m_end_token;
 
 	public:

@@ -12,7 +12,7 @@ void	runtimeException(const std::string& str, const std::string& value = std::st
 
 static bool	isNumber(const std::string& str)
 {
-	// Regular expression pattern for matching integer or double numbers
+	// Regular expression pattern for matching integer or double numbers, fraction, sign
 	std::regex pattern("^[-+]?\\d+(\\.\\d+)?(\\/([1-9]\\d*)+)?$");
 	// Match the pattern against the input string
 	return std::regex_match(str, pattern);
@@ -243,7 +243,7 @@ void	Parser::extractTermFromStack(std::unique_ptr<RPNNode>& node, std::string* v
 		//token.debugPrint();
 	//std::cout << std::endl;
 	current_variable = extractTerm(node, tokens);
-	std::cout << "current var:" << current_variable << std::endl;
+	//std::cout << "current var:" << current_variable << std::endl;
 
 	if (*variable != current_variable)
 	{
@@ -257,8 +257,8 @@ void	Parser::extractTermFromStack(std::unique_ptr<RPNNode>& node, std::string* v
 std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 {
 	std::stack<std::unique_ptr<RPNNode> > stack;
-	bool				valid_equation = false;
 	std::string			variable;
+	bool				valid_equation = false;
 
 	for (const Token& token : rpn_tokens)
 	{
@@ -279,43 +279,10 @@ std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 				std::unique_ptr<RPNNode> right = std::move(stack.top());
 				stack.pop();
 				extractTermFromStack(right, &variable);
-				/*
-				//std::cout << "right" << std::endl;
-				extractTermTokens(right.get(), tokens);
-				//for (auto& token : tokens)
-					//token.debugPrint();
-				//std::cout << std::endl;
-				current_variable = extractTerm(right, tokens);
-				std::cout << "current var:" << current_variable << std::endl;
-
-				if (variable != current_variable)
-				{
-					if (variable.empty())
-						variable = current_variable;
-					else if (!variable.empty() && !current_variable.empty())
-						runtimeException("Invalid variable", current_variable);
-				}
-				*/
 
 				std::unique_ptr<RPNNode> left = std::move(stack.top());
 				stack.pop();
 				extractTermFromStack(left, &variable);
-				/*
-				//std::cout << "left" << std::endl;
-				extractTermTokens(left.get(), tokens);
-				//for (auto& token : tokens)
-					//token.debugPrint();
-				//std::cout << std::endl;
-				current_variable = extractTerm(left, tokens);
-				std::cout << "current var:" << current_variable << std::endl;
-				if (variable != current_variable)
-				{
-					if (variable.empty())
-						variable = current_variable;
-					else if (!variable.empty() && !current_variable.empty())
-						runtimeException("Invalid variable", current_variable);
-				}
-				*/
 
 				stack.push(std::move(right));
 				stack.push(std::move(left));
