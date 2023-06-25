@@ -31,12 +31,14 @@ class TermNode : public RPNNode
 		std::string getVariable() const { return m_variable; }
 		std::string	getCoefficient() const { return m_coefficient; }
 		size_t		getExponent() const { return m_exponent; }
+		std::string getValue() const override { return m_variable;}
+
 		void 		setVariable(const std::string& variable) { m_variable = variable; }
 		void		setCoefficient(const std::string& coef) { m_coefficient = coef; }
 		void		setExponent(const std::string& exponent) { m_exponent = std::stoi(exponent); }
+
 		void		print() const override { std::cout << m_coefficient << "*" << m_variable << "^" << m_exponent; }
 		void		traverse() const override { std::cout << m_coefficient << "*" << m_variable << "^" << m_exponent; }
-		std::string getValue() const override { return m_variable;}
 		void		debugPrint() const;
 };
 
@@ -66,9 +68,10 @@ class BinaryOperatorNode : public RPNNode
 		std::string		getOperator() const { return m_operator; }
 		const RPNNode*	getLeft() const { return m_left.get(); }
 		const RPNNode*	getRight() const { return m_right.get(); }
+		std::string		getValue() const override { return m_operator; }
+
 		void			print() const override { m_left->print(); m_right->print(); std::cout << m_operator; }
 		void			traverse() const override { std::cout << m_operator; }
-		std::string		getValue() const override { return m_operator; }
 		void			swapChildNodes() { std::swap(m_left, m_right); }
 };
 

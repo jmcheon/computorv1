@@ -166,14 +166,15 @@ bool	Parser::isValidTerm(std::vector<Token>& tokens)
 }
 
 
-void	Parser::extractTerm(std::unique_ptr<RPNNode>& node, std::vector<Token>& tokens)
+std::string	Parser::extractTerm(std::unique_ptr<RPNNode>& node, std::vector<Token>& tokens)
 {
     std::unique_ptr<TermNode>		term = std::make_unique<TermNode>();
 	std::vector<Token>::iterator	current_token = tokens.begin();
 	std::vector<Token>::iterator	end_token = tokens.end();
+	std::string						variable;
 
 	if (!isValidTerm(tokens))
-		return ;
+		return variable;
 	if (tokens.size() == 1)
 	{
 		if (isNumber(current_token->m_value))
@@ -185,43 +186,79 @@ void	Parser::extractTerm(std::unique_ptr<RPNNode>& node, std::vector<Token>& tok
 		{
 			if (current_token->m_value[0] == '-')
 			{
-				std::string	variable;
 				term->setCoefficient(std::string("-1", 2));
 				variable = current_token->m_value[1];
 				term->setVariable(variable);
 			}
 			else
-				term->setVariable(current_token->m_value);
+			{
+				variable = current_token->m_value;
+				term->setVariable(variable);
+			}
 		}
 	}
 	if (tokens.size() == 3)
 	{
 		if ((end_token - 1)->m_value == "^")
 		{
-			term->setVariable(current_token->m_value);
+			if (current_token->m_value[0] == '-')
+			{
+				term->setCoefficient(std::string("-1", 2));
+				variable = current_token->m_value[1];
+				term->setVariable(variable);
+			}
+			else
+			{
+				variable = current_token->m_value;
+				term->setVariable(variable);
+			}
 			term->setExponent((current_token + 1)->m_value);
 		}
 		else if ((end_token - 1)->m_value == "*")
 		{
 			term->setCoefficient(current_token->m_value);
-			term->setVariable((current_token + 1)->m_value);
+			variable = (current_token + 1)->m_value;
+			term->setVariable(variable);
 		}
 	}
 	if (tokens.size() == 5)
 	{
 		term->setCoefficient(current_token->m_value);
-		term->setVariable((current_token + 1)->m_value);
+		variable = (current_token + 1)->m_value;
+		term->setVariable(variable);
 		term->setExponent((current_token + 2)->m_value);
 	}
 	node = std::move(term);
+	return variable;
 }
 
+void	Parser::extractTermFromStack(std::unique_ptr<RPNNode>& node, std::string* variable)
+{
+	std::vector<Token>	tokens;
+	std::string			current_variable;
+
+	tokens.clear();
+	extractTermTokens(node.get(), tokens);
+	//for (auto& token : tokens)
+		//token.debugPrint();
+	//std::cout << std::endl;
+	current_variable = extractTerm(node, tokens);
+	std::cout << "current var:" << current_variable << std::endl;
+
+	if (*variable != current_variable)
+	{
+		if (variable->empty())
+			*variable = current_variable;
+		else if (!variable->empty() && !current_variable.empty())
+			runtimeException("Invalid variable", current_variable);
+	}
+}
 
 std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 {
 	std::stack<std::unique_ptr<RPNNode> > stack;
-	std::vector<Token>	tokens;
 	bool				valid_equation = false;
+	std::string			variable;
 
 	for (const Token& token : rpn_tokens)
 	{
@@ -239,25 +276,46 @@ std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 
 			if (token.m_value == "-" || token.m_value == "+" || token.m_value == "=")
 			{
-				tokens.clear();
 				std::unique_ptr<RPNNode> right = std::move(stack.top());
 				stack.pop();
+				extractTermFromStack(right, &variable);
+				/*
 				//std::cout << "right" << std::endl;
 				extractTermTokens(right.get(), tokens);
 				//for (auto& token : tokens)
 					//token.debugPrint();
 				//std::cout << std::endl;
-				extractTerm(right, tokens);
+				current_variable = extractTerm(right, tokens);
+				std::cout << "current var:" << current_variable << std::endl;
 
-				tokens.clear();
+				if (variable != current_variable)
+				{
+					if (variable.empty())
+						variable = current_variable;
+					else if (!variable.empty() && !current_variable.empty())
+						runtimeException("Invalid variable", current_variable);
+				}
+				*/
+
 				std::unique_ptr<RPNNode> left = std::move(stack.top());
 				stack.pop();
+				extractTermFromStack(left, &variable);
+				/*
 				//std::cout << "left" << std::endl;
 				extractTermTokens(left.get(), tokens);
 				//for (auto& token : tokens)
 					//token.debugPrint();
 				//std::cout << std::endl;
-				extractTerm(left, tokens);
+				current_variable = extractTerm(left, tokens);
+				std::cout << "current var:" << current_variable << std::endl;
+				if (variable != current_variable)
+				{
+					if (variable.empty())
+						variable = current_variable;
+					else if (!variable.empty() && !current_variable.empty())
+						runtimeException("Invalid variable", current_variable);
+				}
+				*/
 
 				stack.push(std::move(right));
 				stack.push(std::move(left));
