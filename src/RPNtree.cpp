@@ -1,5 +1,11 @@
 #include "RPNtree.hpp"
 
+void	TermNode::debugPrint() const
+{
+	std::cout << "Term(" << m_coefficient << " * " << m_variable;
+	std::cout << " ^ " << m_exponent << ")" << std::endl;
+}
+
 void	printNode(const RPNNode* node)
 {
 	if (node)

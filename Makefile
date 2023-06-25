@@ -9,7 +9,6 @@ SRCS =	main.cpp \
       	Lexer.cpp \
 		Parser.cpp \
 		RPNtree.cpp \
-		Term.cpp 
 
 
 OBJS_DIR = obj/

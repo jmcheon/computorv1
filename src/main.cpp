@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 	Parser	parser;
 	std::vector<Token> tokens;
 	std::vector<Token> rpn_tokens;
-	std::vector<Term> terms;
+	//std::vector<Term> terms;
 	std::unique_ptr<RPNNode> tree;
 
 	if (argc == 2)
