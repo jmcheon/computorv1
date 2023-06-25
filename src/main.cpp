@@ -21,12 +21,11 @@ int main(int argc, char** argv)
 	Parser	parser;
 	std::vector<Token> tokens;
 	std::vector<Token> rpn_tokens;
-	//std::vector<Term> terms;
 	std::unique_ptr<RPNNode> tree;
 
 	if (argc == 2)
 	{
-		tokens = lexer.tokenize2(argv[1]);
+		tokens = lexer.tokenize(argv[1]);
 		try
 		{
 			rpn_tokens = parser.convertToRPN(tokens);
@@ -36,7 +35,6 @@ int main(int argc, char** argv)
 			tree = parser.buildTree(rpn_tokens);
 			//printNode(tree.get());
 			printTree(tree.get());
-			//terms = parser.parse(tokens);
 			//parser.parse(tree.get());
 		}
 		catch (const std::exception& e)

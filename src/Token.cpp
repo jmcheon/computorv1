@@ -9,14 +9,3 @@ void	Token::printRPN() const
 {
 	std::cout << m_value;
 }
-
-Token	Token::copy() const
-{
-	Token copied;
-
-	copied.m_type = m_type;
-    copied.m_value = m_value;
-    copied.m_token_num = m_token_num;
-
-	return copied;
-}

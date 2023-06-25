@@ -7,30 +7,14 @@
 enum class TokenType
 {
 	WHITESPACE,
-	PLUS, // +
-	MINUS, // -
-	MULTIPLICATION, // *
-	EQUATION, // =
-	DEGREE, // ^
 	OPERATOR,
 	IDENTIFIER,
-	VARIABLE,
-	COEFFICIENT,
-	EXPONENT
 };
 
 static const char* sTokenTypeStrings[] = {
 	"WHITESPACE",
-	"PLUS", // +
-	"MINUS", // -
-	"MULTIPLICATION", // *
-	"EQUATION", // =
-	"DEGREE", // ^
 	"OPERATOR",
 	"IDENTIFIER",
-	"VARIABLE",
-	"COEFFICIENT",
-	"EXPONENT"
 };
 
 class Token
@@ -43,6 +27,5 @@ class Token
 	public:
 		void		debugPrint() const;
 		void		printRPN() const;
-		Token		copy() const;
 };
 #endif

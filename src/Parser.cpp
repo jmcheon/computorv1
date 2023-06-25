@@ -308,29 +308,6 @@ void		Parser::parse(const RPNNode* node)
 	std::cout << std::endl;
 }
 
-bool	Parser::expectToken(Token& token, TokenType m_type)
-{
-	if (token.m_type != m_type)
-		return (false);
-	return (true);
-}
-
-Token		Parser::expectToken(TokenType m_type, const std::string& name)
-{
-	Token return_token;
-
-	if (m_current_token== m_end_token)
-		return return_token;
-	if (m_current_token->m_type != m_type)
-		return return_token;
-	if (!name.empty() && m_current_token->m_value != name)
-		return return_token;
-
-	return_token = *m_current_token;
-	++m_current_token;
-	return return_token;
-}
-
 double calculateSquareRoot(double x, double precision)
 {
 	double low = 0.0;

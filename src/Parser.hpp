@@ -28,17 +28,13 @@ class Parser
 		std::vector<Token>::iterator	m_end_token;
 
 	public:
-		//Parser();
-		void					parse(const RPNNode* node);
-		std::vector<Token>		convertToRPN(const std::vector<Token>& tokens);
+		void						parse(const RPNNode* node);
+		std::vector<Token>			convertToRPN(const std::vector<Token>& tokens);
 		std::unique_ptr<RPNNode>	buildTree(const std::vector<Token>& rpn_tokens);
 	private:
-		Token					expectToken(TokenType type, const std::string& name = std::string());
-		bool					expectToken(Token& token, TokenType type);
-
-		void					extractTermTokens(const RPNNode* node, std::vector<Token>& tokens);
-		void					extractTerm(std::unique_ptr<RPNNode>& node, std::vector<Token>& tokens);
-		bool					isValidTerm(std::vector<Token>& tokens);
+		void	extractTermTokens(const RPNNode* node, std::vector<Token>& tokens);
+		void	extractTerm(std::unique_ptr<RPNNode>& node, std::vector<Token>& tokens);
+		bool	isValidTerm(std::vector<Token>& tokens);
 };
 
 double		calculateSquareRoot(double x, double precision);
