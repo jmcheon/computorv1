@@ -13,7 +13,7 @@ void	runtimeException(const std::string& str, const std::string& value = std::st
 static bool	isNumber(const std::string& str)
 {
 	// Regular expression pattern for matching integer or double numbers
-	std::regex pattern("^\\d+(\\.\\d+)?$");
+	std::regex pattern("^[-+]?\\d+(\\.\\d+)?(\\/([1-9]\\d*)+)?$");
 	// Match the pattern against the input string
 	return std::regex_match(str, pattern);
 }
@@ -33,9 +33,17 @@ static bool		isDouble(const std::string& str)
 static bool	isPotentialVariable(const std::string& str)
 {
 	char	variable;
-	if (str.length() != 1)
+	if (str.length() > 2)
 		return false;
-	variable = str[0];
+	if (str.length() == 1)
+		variable = str[0];
+	else
+	{
+		if (str[0] == '-' || str[0] == '+')
+			variable = str[1];
+		else
+			return false;
+	}
 	return std::isalpha(variable);
 }
 
@@ -90,6 +98,121 @@ std::vector<Token> Parser::convertToRPN(const std::vector<Token>& tokens)
 
     return output_queue;
 }
+void	Parser::extractTermTokens(const RPNNode* node, std::vector<Token>& tokens)
+{
+	Token	token;
+
+    if (const BinaryOperatorNode* binary_node = dynamic_cast<const BinaryOperatorNode*>(node))
+	{
+    	extractTermTokens(binary_node->getLeft(), tokens);
+    	extractTermTokens(binary_node->getRight(), tokens);
+		token.m_type = TokenType::OPERATOR;
+		token.m_value = node->getValue();
+		token.m_token_num = 0;
+		tokens.push_back(token);
+    }
+    if (const IdentifierNode* identifier_node = dynamic_cast<const IdentifierNode*>(node))
+	{
+		token.m_type = TokenType::IDENTIFIER;
+		token.m_value = node->getValue();
+		token.m_token_num = 0;
+		tokens.push_back(token);
+	}
+	//std::cout << std::endl;
+}
+
+bool	Parser::isValidTerm(std::vector<Token>& tokens)
+{
+	std::vector<Token>::iterator	current_token = tokens.begin();
+	std::vector<Token>::iterator	end_token = tokens.end();
+
+	if (current_token->m_value == "+" || current_token->m_value == "-")
+		return false;
+	if (tokens.size() > 5 || tokens.size() % 2 == 0)
+		runtimeException("Invalid term");
+	if (tokens.size() == 1 && !isPotentialVariable(current_token->m_value) && !isNumber(current_token->m_value))
+		runtimeException("Invalid variable", current_token->m_value);
+	if (tokens.size() == 3)
+	{
+		if ((end_token - 1)->m_value == "^")
+		{
+			if (isNumber(current_token->m_value))
+				runtimeException("Invalid variable 1", current_token->m_value);
+			if (!isInteger((current_token + 1)->m_value))
+				runtimeException("Invalid exponent 1", (current_token + 1)->m_value);
+		}
+		else if ((end_token - 1)->m_value == "*")
+		{
+			if (!isNumber(current_token->m_value))
+				runtimeException("Invalid coefficient 2", current_token->m_value);
+			if (isNumber((current_token + 1)->m_value))
+				runtimeException("Invalid variable 2", (current_token + 1)->m_value);
+		}
+		else
+			runtimeException("Invalid operator", (end_token - 1)->m_value);
+	}
+	if (tokens.size() == 5)
+	{
+		if ((end_token - 1)->m_value != "*")
+			runtimeException("Invalid order");
+		if (!isNumber(current_token->m_value))
+			runtimeException("Invalid coefficient 3", current_token->m_value);
+		if (isNumber((current_token + 1)->m_value))
+			runtimeException("Invalid variable 3", (current_token + 1)->m_value);
+		if (!isInteger((current_token + 2)->m_value))
+			runtimeException("Invalid exponent 3", (current_token + 2)->m_value);
+	}
+	return true;
+}
+
+
+void	Parser::extractTerm(std::unique_ptr<RPNNode>& node, std::vector<Token>& tokens)
+{
+    std::unique_ptr<TermNode>		term = std::make_unique<TermNode>();
+	std::vector<Token>::iterator	current_token = tokens.begin();
+	std::vector<Token>::iterator	end_token = tokens.end();
+
+	if (!isValidTerm(tokens))
+		return ;
+	if (tokens.size() == 1)
+	{
+		if (isNumber(current_token->m_value))
+			term->setCoefficient(current_token->m_value);
+		else
+		{
+			if (current_token->m_value[0] == '-')
+			{
+				std::string	variable;
+				term->setCoefficient(std::string("-1", 2));
+				variable = current_token->m_value[1];
+				term->setVariable(variable);
+			}
+			else
+				term->setVariable(current_token->m_value);
+		}
+	}
+	if (tokens.size() == 3)
+	{
+		if ((end_token - 1)->m_value == "^")
+		{
+			term->setVariable(current_token->m_value);
+			term->setExponent((current_token + 1)->m_value);
+		}
+		else if ((end_token - 1)->m_value == "*")
+		{
+			term->setCoefficient(current_token->m_value);
+			term->setVariable((current_token + 1)->m_value);
+		}
+	}
+	if (tokens.size() == 5)
+	{
+		term->setCoefficient(current_token->m_value);
+		term->setVariable((current_token + 1)->m_value);
+		term->setExponent((current_token + 2)->m_value);
+	}
+	node = std::move(term);
+}
+
 
 std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 {
@@ -109,6 +232,32 @@ std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 		{
 			if (stack.size() < 2)
 				runtimeException("Invalid equation: Not enough operands");
+
+			if (token.m_value == "-" || token.m_value == "+" || token.m_value == "=")
+			{
+				std::vector<Token> tokens;
+				std::unique_ptr<RPNNode> right = std::move(stack.top());
+				stack.pop();
+				//std::cout << "right" << std::endl;
+				extractTermTokens(right.get(), tokens);
+				//for (auto& token : tokens)
+					//token.debugPrint();
+				//std::cout << std::endl;
+				extractTerm(right, tokens);
+
+				tokens.clear();
+				std::unique_ptr<RPNNode> left = std::move(stack.top());
+				stack.pop();
+				//std::cout << "left" << std::endl;
+				extractTermTokens(left.get(), tokens);
+				//for (auto& token : tokens)
+					//token.debugPrint();
+				//std::cout << std::endl;
+				extractTerm(left, tokens);
+
+				stack.push(std::move(right));
+				stack.push(std::move(left));
+			}
 			std::unique_ptr<RPNNode> right = std::move(stack.top());
 			stack.pop();
 			std::unique_ptr<RPNNode> left = std::move(stack.top());
@@ -126,7 +275,10 @@ std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 			runtimeException("Invalid equation: Unexpected symbol", token.m_value);
 	}
 	if (stack.size() != 1)
+	{
+		//std::cout << stack.size() << std::endl;
 		runtimeException("Invalid equation: Too many operands");
+	}
 	if (!valid_equation)
 		runtimeException("Invalid syntax: equation not found");
 	return std::move(stack.top());
@@ -318,6 +470,73 @@ void		Parser::expectOperator(std::vector<Token>::iterator current_token)
 		}
 	}
 }
+/*
+std::unique_ptr<RPNNode> traverseAndModify(RPNNode* node)
+{
+    if (node == nullptr)
+        return nullptr;
+
+    if (const BinaryOperatorNode* binary_node = dynamic_cast<const BinaryOperatorNode*>(node))
+	{
+    	// Traverse and modify the left subtree
+    	std::unique_ptr<RPNNode> left = traverseAndModify(binary_node->getLeft());
+
+    	// Traverse and modify the right subtree
+    	std::unique_ptr<RPNNode> right = traverseAndModify(binary_node->getRight());
+	}
+
+    // Perform modifications on the current node
+    if (Condition for creating a TermNode) {
+        // Extract values from the nodes to create a TermNode
+        std::string variable;
+        double coefficient;
+        size_t exponent;
+
+        // Extract values from the left and right nodes as needed
+        if (left != nullptr) {
+            // Extract values from the left node
+            // Example: variable = dynamic_cast<TermNode*>(left.get())->getVariable();
+        }
+
+        if (right != nullptr) {
+            // Extract values from the right node
+            // Example: coefficient = dynamic_cast<TermNode*>(right.get())->getCoefficient();
+        }
+
+        // Create a new TermNode using the extracted values
+        std::unique_ptr<RPNNode> newTermNode = std::make_unique<TermNode>(variable, coefficient, exponent);
+        return newTermNode;
+    }
+
+    // Return the original node if no modifications were made
+    return std::make_unique<RPNNode>(*node);
+}
+*/
+
+
+void		Parser::parse(const RPNNode* node)
+{
+	std::vector<Term>	terms;
+	std::stack<RPNNode> stack;
+			//stack.push(std::make_unique<IdentifierNode>(token.m_value));
+
+	//traverseAndModify(node);
+	//printNode(static_cast<const RPNNode *>(&tree[0]));
+    //const BinaryOperatorNode* binary_node = dynamic_cast<const BinaryOperatorNode*>(node);
+    if (const BinaryOperatorNode* binary_node = dynamic_cast<const BinaryOperatorNode*>(node))
+	{
+    	parse(binary_node->getLeft());
+    	parse(binary_node->getRight());
+		if (binary_node->getOperator() == "-" || binary_node->getOperator() == "+" || binary_node->getOperator() == "=")
+			node->traverse();
+    }
+    if (const IdentifierNode* identifier_node = dynamic_cast<const IdentifierNode*>(node))
+	{
+		node->traverse();
+	}
+	//node->traverse();
+	std::cout << std::endl;
+}
 
 std::vector<Term>		Parser::parse(std::vector<Token>& tokens)
 {
@@ -339,8 +558,10 @@ std::vector<Term>		Parser::parse(std::vector<Token>& tokens)
 			//if (term.getVariable().empty() && term.getExponent() != 0)
 			//	throw std::runtime_error("Invalid syntax");
 		}
-		else if (m_current_token->m_type == TokenType::IDENTIFIER)
+		else if (m_current_token->m_type == TokenType::OPERATOR)
 		{
+			std::cout << "operator: " <<  m_current_token->m_value << std::endl;
+			terms.push_back(Operator(m_current_token->m_value));
 		}
 	}
 	return terms;

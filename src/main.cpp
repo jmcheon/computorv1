@@ -34,8 +34,10 @@ int main(int argc, char** argv)
 				token.printRPN();
 			std::cout << std::endl;
 			tree = parser.buildTree(rpn_tokens);
+			//printNode(tree.get());
 			printTree(tree.get());
-			terms = parser.parse(tokens);
+			//terms = parser.parse(tokens);
+			//parser.parse(tree.get());
 		}
 		catch (const std::exception& e)
 		{

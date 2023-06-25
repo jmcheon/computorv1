@@ -4,6 +4,7 @@ std::vector<Token>	Lexer::tokenize2(const std::string& texts)
 {
 	std::vector<Token>			tokens;
 	Token						current_token;
+	bool						is_equation = false;
 	std::string::const_iterator	it;
 	
 	current_token.m_type = TokenType::WHITESPACE;
@@ -19,9 +20,31 @@ std::vector<Token>	Lexer::tokenize2(const std::string& texts)
 				break ;
 			case '+':
 			case '-':
+				if (current_token.m_token_num == 0 || is_equation) 
+				{
+					if (is_equation)
+						is_equation = false;
+					endToken(current_token, tokens);
+					current_token.m_type = TokenType::IDENTIFIER;
+					current_token.m_value.append(1, *it);
+				}
+				else
+				{
+					endToken(current_token, tokens);
+					current_token.m_type = TokenType::OPERATOR;
+					current_token.m_value.append(1, *it);
+					endToken(current_token, tokens);
+				}
+				break ;
 			case '*':
-			case '=':
 			case '^':
+				endToken(current_token, tokens);
+				current_token.m_type = TokenType::OPERATOR;
+				current_token.m_value.append(1, *it);
+				endToken(current_token, tokens);
+				break ;
+			case '=':
+				is_equation = true;
 				endToken(current_token, tokens);
 				current_token.m_type = TokenType::OPERATOR;
 				current_token.m_value.append(1, *it);
@@ -40,7 +63,6 @@ std::vector<Token>	Lexer::tokenize2(const std::string& texts)
 		}
 	}
 	endToken(current_token, tokens);
-	//modifyIdentifierToken(tokens);
 	return (tokens);
 }
 

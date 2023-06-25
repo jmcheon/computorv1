@@ -16,6 +16,28 @@ class RPNNode
 		virtual			~RPNNode() = default;
 		virtual void	print() const = 0;
 		virtual void	traverse() const = 0;
+		virtual std::string getValue() const = 0;
+};
+
+class TermNode : public RPNNode
+{
+	private:
+		std::string	m_variable;
+		std::string	m_coefficient;
+		size_t		m_exponent;
+	public:
+		TermNode() : m_coefficient("1"), m_variable("1"), m_exponent(0) {};
+
+		std::string getVariable() const { return m_variable; }
+		std::string	getCoefficient() const { return m_coefficient; }
+		size_t		getExponent() const { return m_exponent; }
+		void 		setVariable(const std::string& variable) { m_variable = variable; }
+		void		setCoefficient(const std::string& coef) { m_coefficient = coef; }
+		void		setExponent(const std::string& exponent) { m_exponent = std::stoi(exponent); }
+		void		print() const override { std::cout << m_coefficient << "*" << m_variable << "^" << m_exponent; }
+		void		traverse() const override { std::cout << m_coefficient << "*" << m_variable << "^" << m_exponent; }
+		std::string getValue() const override { return m_variable;}
+		void		debugPrint() const;
 };
 
 class IdentifierNode : public RPNNode
@@ -46,6 +68,7 @@ class BinaryOperatorNode : public RPNNode
 		const RPNNode*	getRight() const { return m_right.get(); }
 		void			print() const override { m_left->print(); m_right->print(); std::cout << m_operator; }
 		void			traverse() const override { std::cout << m_operator; }
+		std::string		getValue() const override { return m_operator; }
 		void			swapChildNodes() { std::swap(m_left, m_right); }
 };
 
