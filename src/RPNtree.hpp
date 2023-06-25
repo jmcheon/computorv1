@@ -26,7 +26,7 @@ class TermNode : public RPNNode
 		std::string	m_coefficient;
 		size_t		m_exponent;
 	public:
-		TermNode() : m_coefficient("1"), m_variable("1"), m_exponent(0) {};
+		TermNode() : m_coefficient("1"), m_variable("1"), m_exponent(1) {};
 
 		std::string getVariable() const { return m_variable; }
 		std::string	getCoefficient() const { return m_coefficient; }

@@ -177,7 +177,10 @@ void	Parser::extractTerm(std::unique_ptr<RPNNode>& node, std::vector<Token>& tok
 	if (tokens.size() == 1)
 	{
 		if (isNumber(current_token->m_value))
+		{
 			term->setCoefficient(current_token->m_value);
+			term->setExponent("0");
+		}
 		else
 		{
 			if (current_token->m_value[0] == '-')
@@ -217,7 +220,8 @@ void	Parser::extractTerm(std::unique_ptr<RPNNode>& node, std::vector<Token>& tok
 std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 {
 	std::stack<std::unique_ptr<RPNNode> > stack;
-	bool	valid_equation = false;
+	std::vector<Token>	tokens;
+	bool				valid_equation = false;
 
 	for (const Token& token : rpn_tokens)
 	{
@@ -235,7 +239,7 @@ std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 
 			if (token.m_value == "-" || token.m_value == "+" || token.m_value == "=")
 			{
-				std::vector<Token> tokens;
+				tokens.clear();
 				std::unique_ptr<RPNNode> right = std::move(stack.top());
 				stack.pop();
 				//std::cout << "right" << std::endl;
