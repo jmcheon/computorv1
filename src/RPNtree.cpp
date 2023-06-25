@@ -1,9 +1,41 @@
 #include "RPNtree.hpp"
+const RPNNode*	TermNode::getNextNode() const
+{ 
+	/*
+	if (parent)
+	{
+		std::cout << "yes" << std::endl;
+    	return parent->getNextNode();
+	}
+	return nullptr;
+	*/
+}
 
 void	TermNode::debugPrint() const
 {
 	std::cout << "Term(" << m_coefficient << " * " << m_variable;
 	std::cout << " ^ " << m_exponent << ")" << std::endl;
+}
+
+const RPNNode*	BinaryOperatorNode::getNextNode() const
+{
+    m_right->getNextNode();
+    m_left->getNextNode();
+	/*
+	// If this node has a parent and this node is the left child of its parent,
+    // return the parent as the next node
+    if (parent && parent->getLeft() == this)
+        return parent;
+
+    // If this node has a parent and this node is the right child of its parent,
+    // return the next node of the parent
+    if (parent && parent->getRight() == this)
+        return parent->getNextNode();
+
+    // This node is not part of a larger expression
+    return nullptr;
+	//return m_right.get();
+	*/
 }
 
 void	printNode(const RPNNode* node)

@@ -33,6 +33,7 @@ int main(int argc, char** argv)
 			tree = parser.buildTree(rpn_tokens);
 			//printNode(tree.get());
 			printTree(tree.get());
+			solveEquation(tree.get());
 			//parser.parse(tree.get());
 		}
 		catch (const std::exception& e)

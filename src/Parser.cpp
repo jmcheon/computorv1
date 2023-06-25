@@ -166,7 +166,7 @@ bool	Parser::isValidTerm(std::vector<Token>& tokens)
 }
 
 
-std::string	Parser::extractTerm(std::unique_ptr<RPNNode>& node, std::vector<Token>& tokens)
+std::string	Parser::extractTerm(std::unique_ptr<RPNNode>& node, std::vector<Token>& tokens, bool is_neg)
 {
     std::unique_ptr<TermNode>		term = std::make_unique<TermNode>();
 	std::vector<Token>::iterator	current_token = tokens.begin();
@@ -228,11 +228,13 @@ std::string	Parser::extractTerm(std::unique_ptr<RPNNode>& node, std::vector<Toke
 		term->setVariable(variable);
 		term->setExponent((current_token + 2)->m_value);
 	}
+	if (is_neg)
+		term->setCoefficient("-" + term->getCoefficient());
 	node = std::move(term);
 	return variable;
 }
 
-void	Parser::extractTermFromStack(std::unique_ptr<RPNNode>& node, std::string* variable)
+void	Parser::extractTermFromStack(std::unique_ptr<RPNNode>& node, std::string* variable, bool is_neg)
 {
 	std::vector<Token>	tokens;
 	std::string			current_variable;
@@ -242,7 +244,8 @@ void	Parser::extractTermFromStack(std::unique_ptr<RPNNode>& node, std::string* v
 	//for (auto& token : tokens)
 		//token.debugPrint();
 	//std::cout << std::endl;
-	current_variable = extractTerm(node, tokens);
+	current_variable = extractTerm(node, tokens, is_neg);
+
 	//std::cout << "current var:" << current_variable << std::endl;
 
 	if (*variable != current_variable)
@@ -254,13 +257,13 @@ void	Parser::extractTermFromStack(std::unique_ptr<RPNNode>& node, std::string* v
 	}
 }
 
-std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
+std::unique_ptr<RPNNode>	Parser::buildTree(std::vector<Token>& rpn_tokens)
 {
 	std::stack<std::unique_ptr<RPNNode> > stack;
 	std::string			variable;
 	bool				valid_equation = false;
 
-	for (const Token& token : rpn_tokens)
+	for (Token& token : rpn_tokens)
 	{
 		//token.debugPrint();
 		if (token.m_type == TokenType::IDENTIFIER)
@@ -274,7 +277,21 @@ std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 			if (stack.size() < 2)
 				runtimeException("Invalid equation: Not enough operands");
 
-			if (token.m_value == "-" || token.m_value == "+" || token.m_value == "=")
+			if (token.m_value == "-")
+			{
+				std::unique_ptr<RPNNode> right = std::move(stack.top());
+				stack.pop();
+				extractTermFromStack(right, &variable, true);
+				token.m_value = "+";
+
+				std::unique_ptr<RPNNode> left = std::move(stack.top());
+				stack.pop();
+				extractTermFromStack(left, &variable);
+
+				stack.push(std::move(right));
+				stack.push(std::move(left));
+			}
+			else if (token.m_value == "+" || token.m_value == "=")
 			{
 				std::unique_ptr<RPNNode> right = std::move(stack.top());
 				stack.pop();
@@ -315,13 +332,11 @@ std::unique_ptr<RPNNode>	Parser::buildTree(const std::vector<Token>& rpn_tokens)
 
 void		Parser::parse(const RPNNode* node)
 {
-	//std::vector<Term>	terms;
 	std::stack<RPNNode> stack;
-			//stack.push(std::make_unique<IdentifierNode>(token.m_value));
+	//stack.push(std::make_unique<IdentifierNode>(token.m_value));
 
-	//traverseAndModify(node);
+/*
 	//printNode(static_cast<const RPNNode *>(&tree[0]));
-    //const BinaryOperatorNode* binary_node = dynamic_cast<const BinaryOperatorNode*>(node);
     if (const BinaryOperatorNode* binary_node = dynamic_cast<const BinaryOperatorNode*>(node))
 	{
     	parse(binary_node->getLeft());
@@ -335,6 +350,7 @@ void		Parser::parse(const RPNNode* node)
 	}
 	//node->traverse();
 	std::cout << std::endl;
+	*/
 }
 
 double calculateSquareRoot(double x, double precision)
@@ -355,15 +371,65 @@ double calculateSquareRoot(double x, double precision)
     }
     return mid;
 };
-/*
-void	soloveEquation(const std::vector<Term>& terms)
+
+void getMaxDegree(const RPNNode* node, size_t& degree)
 {
-	int	degree = 0;
-	for (const Term& term : terms)
+    if (const TermNode* term_node = dynamic_cast<const TermNode*>(node))
+    {
+        if (term_node->getExponent() > degree)
+            degree = term_node->getExponent();
+    }
+    if (const BinaryOperatorNode* binary_node = dynamic_cast<const BinaryOperatorNode*>(node))
+    {
+        getMaxDegree(binary_node->getLeft(), degree);
+        getMaxDegree(binary_node->getRight(), degree);
+    }
+}
+
+void getCoefficients(const RPNNode* node, double& constant_term, double& coef, double& coef_square)
+{
+	if (const TermNode* term_node = dynamic_cast<const TermNode*>(node))
 	{
-		if (term.exponent > degree)
-			degree = term.exponent;
+		std::cout << term_node->getExponent() << std::endl;
+		if (term_node->getExponent() == 0)
+			constant_term = std::stod(term_node->getCoefficient());
+		else if (term_node->getExponent() == 1)
+			coef = std::stod(term_node->getCoefficient());
+		else if (term_node->getExponent() == 2)
+			coef_square = std::stod(term_node->getCoefficient());
 	}
+    if (const BinaryOperatorNode* binary_node = dynamic_cast<const BinaryOperatorNode*>(node))
+    {
+        getCoefficients(binary_node->getLeft(), constant_term, coef, coef_square);
+        getCoefficients(binary_node->getRight(), constant_term, coef, coef_square);
+    }
+}
+
+void	printEquation(const RPNNode* node)
+{
+    if (const BinaryOperatorNode* binary_node = dynamic_cast<const BinaryOperatorNode*>(node))
+    {
+        printEquation(binary_node->getLeft());
+        printEquation(binary_node->getRight());
+    }
+	//node->printNormal();
+}
+
+void	reduceEquation(const RPNNode* root)
+{
+	//for (const RPNNode* node = root; node != nullptr; node = node->getNextNode())
+}
+
+void	solveEquation(const RPNNode* root)
+{
+	size_t	degree = 0;
+	double	constant_term = 0.0;
+	double	coef = 0.0;
+	double	coef_square = 0.0;
+
+	//printEquation(root);
+	root->printNormal();
+	getMaxDegree(root, degree);
 	std::cout << "Polynomial degree: " << degree << std::endl;
 
 	if (degree > 2)
@@ -374,16 +440,7 @@ void	soloveEquation(const std::vector<Term>& terms)
 
 	if (degree == 0)
 	{
-		double constant_term = 0.0;
-
-		for (const Term& term : terms)
-		{
-			if (term.exponent == 0)
-			{
-				constant_term = term.coefficient;
-				break ;
-			}
-		}
+		getCoefficients(root, constant_term, coef, coef_square);
 		if (constant_term != 0.0)
 			std::cout << "no solution" << std::endl;
 		else
@@ -391,50 +448,37 @@ void	soloveEquation(const std::vector<Term>& terms)
 	}
 	else if (degree == 1)
 	{
-		double constant_term = 0.0;
-		double coef = 0.0;
 		double solution;
 
-		for (const Term& term : terms)
-		{
-			if (term.exponent == 0)
-				constant_term = term.coefficient;
-			else if (term.exponent == 1)
-				coef = term.coefficient;
-		}
+		getCoefficients(root, constant_term, coef, coef_square);
 		solution = -constant_term / coef;
 		std::cout << "The solution is:\n" << solution << std::endl;
 	}
 	else if (degree == 2)
 	{
-		double constant_term = 0.0;
-		double coef = 0.0;
-		double coef_squre = 0.0;
 		double discriminant;
-		for (const Term& term : terms)
-		{
-			if (term.exponent == 0)
-				constant_term = term.coefficient;
-			else if (term.exponent == 1)
-				coef = term.coefficient;
-			else if (term.exponent == 2)
-				coef_squre = term.coefficient;
-		}
+
+		getCoefficients(root, constant_term, coef, coef_square);
+		std::cout << "constant_term : " << constant_term << std::endl;
+		std::cout << "coef : " << coef << std::endl;
+		std::cout << "coef_square : " << coef_square << std::endl;
 		// ax^2 + bx + c = 0, the discriminant is calculated as b^2 - 4ac
-		discriminant = coef * coef - 4 * coef_squre * constant_term;
+		discriminant = coef * coef - 4 * coef_square * constant_term;
+		std::cout << "discriminant: " << discriminant << std::endl;
 		if (discriminant < 0.0)
 			std::cout << "Discriminant is negative, no real solution." << std::endl;
 		else if (discriminant == 0.0)
 		{
-			double solution = -coef / (2 * coef_squre);
+			double solution = -coef / (2 * coef_square);
 			std::cout << "Discriminant is zero, the one solutions is:" << std::endl;;
 			std::cout << solution << std::endl;
 		}
 		else
 		{
 			double sqrt_discriminant = calculateSquareRoot(discriminant, 0.001);
-			double solution1 = -coef / (2 * coef_squre);
-			double solution2 = -coef / (2 * coef_squre);
+			//double sqrt_discriminant = std::sqrt(discriminant);
+			double solution1 = (-coef + sqrt_discriminant) / (2 * coef_square);
+			double solution2 = (-coef - sqrt_discriminant) / (2 * coef_square);
 
 			std::cout << "Discriminant is strictly positive, the two solutions are:" << std::endl;;
 			std::cout << solution1 << std::endl;
@@ -442,4 +486,4 @@ void	soloveEquation(const std::vector<Term>& terms)
 		}
 	}
 };
-*/
+
