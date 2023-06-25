@@ -1,21 +1,9 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
-#include <iostream>
-#include <sstream>
-#include <utility>
-#include <memory>
-#include <map>
 #include <stack>
-#include <cstdlib>
 #include <regex>
 #include "Lexer.hpp"
-#include "Token.hpp"
 #include "RPNtree.hpp"
-
-
-
-#include <cmath>
-
 
 # define YELLOW "\033[0;38;5;220m"
 # define GREEN "\033[0;38;5;42m"
@@ -27,12 +15,7 @@
 # define FIN "\033[0m"
 class Parser
 {
-	private:
-		std::vector<Token>::iterator	m_current_token;
-		std::vector<Token>::iterator	m_end_token;
-
 	public:
-		void						parse(const RPNNode* node);
 		std::vector<Token>			convertToRPN(const std::vector<Token>& tokens);
 		std::unique_ptr<RPNNode>	buildTree(std::vector<Token>& rpn_tokens);
 	private:

@@ -330,29 +330,6 @@ std::unique_ptr<RPNNode>	Parser::buildTree(std::vector<Token>& rpn_tokens)
 	return std::move(stack.top());
 }
 
-void		Parser::parse(const RPNNode* node)
-{
-	std::stack<RPNNode> stack;
-	//stack.push(std::make_unique<IdentifierNode>(token.m_value));
-
-/*
-	//printNode(static_cast<const RPNNode *>(&tree[0]));
-    if (const BinaryOperatorNode* binary_node = dynamic_cast<const BinaryOperatorNode*>(node))
-	{
-    	parse(binary_node->getLeft());
-    	parse(binary_node->getRight());
-		if (binary_node->getOperator() == "-" || binary_node->getOperator() == "+" || binary_node->getOperator() == "=")
-			node->traverse();
-    }
-    if (const IdentifierNode* identifier_node = dynamic_cast<const IdentifierNode*>(node))
-	{
-		node->traverse();
-	}
-	//node->traverse();
-	std::cout << std::endl;
-	*/
-}
-
 double calculateSquareRoot(double x, double precision)
 {
 	double low = 0.0;
@@ -405,19 +382,8 @@ void getCoefficients(const RPNNode* node, double& constant_term, double& coef, d
     }
 }
 
-void	printEquation(const RPNNode* node)
-{
-    if (const BinaryOperatorNode* binary_node = dynamic_cast<const BinaryOperatorNode*>(node))
-    {
-        printEquation(binary_node->getLeft());
-        printEquation(binary_node->getRight());
-    }
-	//node->printNormal();
-}
-
 void	reduceEquation(const RPNNode* root)
 {
-	//for (const RPNNode* node = root; node != nullptr; node = node->getNextNode())
 }
 
 void	solveEquation(const RPNNode* root)
@@ -427,8 +393,8 @@ void	solveEquation(const RPNNode* root)
 	double	coef = 0.0;
 	double	coef_square = 0.0;
 
-	//printEquation(root);
 	root->printNormal();
+	std::cout << std::endl;
 	getMaxDegree(root, degree);
 	std::cout << "Polynomial degree: " << degree << std::endl;
 

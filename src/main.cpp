@@ -1,9 +1,4 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include "Lexer.hpp"
 #include "Parser.hpp"
-
 
 void	printTokens(std::vector<Token>& tokens)
 {
@@ -34,14 +29,12 @@ int main(int argc, char** argv)
 			//printNode(tree.get());
 			printTree(tree.get());
 			solveEquation(tree.get());
-			//parser.parse(tree.get());
 		}
 		catch (const std::exception& e)
 		{
 			std::cout << "Exception caught: " << e.what() << std::endl;
 		}
 		//printTokens(tokens);
-		//solveEquation(terms);
 	}
 	else
 	{

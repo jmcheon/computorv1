@@ -2,7 +2,6 @@
 #define TOKEN_HPP
 #include <iostream>
 #include <string>
-#include <vector>
 
 enum class TokenType
 {
