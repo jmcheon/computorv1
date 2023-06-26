@@ -5,6 +5,8 @@ SRCS_DIR = src/
 INCLUDES = ./
 
 SRCS =	main.cpp \
+		utils.cpp \
+		computorv.cpp \
 		Token.cpp \
       	Lexer.cpp \
 		Parser.cpp \

@@ -23,13 +23,25 @@ int main(int argc, char** argv)
 		try
 		{
 			rpn_tokens = parser.convertToRPN(tokens);
+			std::cout << "Reverse polish format:\n";
 			for (Token& token : rpn_tokens)
 				token.printRPN();
-			std::cout << std::endl;
+			std::cout << std::endl << std::endl;
+
+			std::cout << "Term based format:\n";
 			tree = parser.buildTree(rpn_tokens);
 			printNode(tree.get());
+			std::cout << std::endl << std::endl;
+
+			std::cout << "Tree:\n";
 			printTree(tree.get());
-			terms = getTerms(tree.get());
+			std::cout << std::endl << std::endl;
+
+			std::cout << "Equation: ";
+			tree->printNormal();
+			std::cout << std::endl;
+
+			terms = parser.getTerms(tree.get());
 			//printTree(tree.get());
 			solveEquation(terms);
 		}

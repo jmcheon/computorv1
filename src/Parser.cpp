@@ -1,68 +1,5 @@
 #include "Parser.hpp"
 
-void	runtimeException(const std::string& str, const std::string& value = std::string())
-{
-	std::stringstream	error_message;
-	if (!value.empty())
-		error_message << RED << str << " '" << value << "'" << FIN;
-	else
-		error_message << RED << str << FIN;
-	throw std::runtime_error(error_message.str());
-}
-
-static bool	isNumber(const std::string& str)
-{
-	// Regular expression pattern for matching integer or double numbers, fraction, sign
-	std::regex pattern("^[-+]?\\d+(\\.\\d+)?(\\/([1-9]\\d*)+)?$");
-	// Match the pattern against the input string
-	return std::regex_match(str, pattern);
-}
-
-static bool		isInteger(const std::string& str)
-{
-	std::regex pattern("^\\d+?$");
-	return std::regex_match(str, pattern);
-}
-
-static bool		isDouble(const std::string& str)
-{
-	std::regex pattern("^(\\.\\d+)?$");
-	return std::regex_match(str, pattern);
-}
-
-static bool	isPotentialVariable(const std::string& str)
-{
-	char	variable;
-	if (str.length() > 2)
-		return false;
-	if (str.length() == 1)
-		variable = str[0];
-	else
-	{
-		if (str[0] == '-' || str[0] == '+')
-			variable = str[1];
-		else
-			return false;
-	}
-	return std::isalpha(variable);
-}
-
-static int getOperatorPrecedence(const Token& token)
-{
-    if (token.m_value == "*" || token.m_value == "/" || token.m_value == "^")
-		return 2;
-    else if (token.m_value == "+" || token.m_value == "-")
-		return 1;
-	return 0;
-}
-
-static bool hasHigherPrecedence(const Token& op1, const Token& op2)
-{
-    int precedence_op1 = getOperatorPrecedence(op1);
-    int precedence_op2 = getOperatorPrecedence(op2);
-    return (precedence_op1 > precedence_op2);
-}
-
 std::vector<Token> Parser::convertToRPN(const std::vector<Token>& tokens)
 {
     std::vector<Token>	output_queue;
@@ -98,6 +35,7 @@ std::vector<Token> Parser::convertToRPN(const std::vector<Token>& tokens)
 
     return output_queue;
 }
+
 void	Parser::extractTermTokens(const RPNNode* node, std::vector<Token>& tokens)
 {
 	Token	token;
@@ -331,26 +269,7 @@ std::unique_ptr<RPNNode>	Parser::buildTree(std::vector<Token>& rpn_tokens)
 	return std::move(stack.top());
 }
 
-double calculateSquareRoot(double x, double precision)
-{
-	double low = 0.0;
-	double high = x;
-	double mid = (low + high) / 2.0;
-	double diff = mid * mid - x;
-
-	while (diff * diff > precision * precision)
-	{
-		if (diff > 0.0)
-			high = mid;
-		else
-			low = mid;
-		mid = (low + high) / 2.0;
-		diff = mid * mid - x;
-    }
-    return mid;
-};
-
-void getTermNodes(RPNNode* node, std::vector<TermNode>& terms, bool equal_sign)
+void	Parser::getTermNodes(RPNNode* node, std::vector<TermNode>& terms, bool equal_sign)
 {
 	if (TermNode* term_node = dynamic_cast<TermNode*>(node))
 	{
@@ -361,7 +280,7 @@ void getTermNodes(RPNNode* node, std::vector<TermNode>& terms, bool equal_sign)
 			if (term_node->getCoefficient()[0] != '-')
 				term_node->setCoefficient("-" + term_node->getCoefficient());
 			else
-				term_node->setCoefficient(term_node->getCoefficient().substr(1, 1));
+				term_node->setCoefficient(term_node->getCoefficient().substr(1, term_node->getCoefficient().length()));
 		}
 		terms.push_back(*term_node);
 	}
@@ -378,54 +297,13 @@ void getTermNodes(RPNNode* node, std::vector<TermNode>& terms, bool equal_sign)
 		}
 		else
 		{
-			//equal_sign = false;
         	getTermNodes(binary_node->getLeft(), terms, equal_sign);
         	getTermNodes(binary_node->getRight(), terms, equal_sign);
 		}
     }
 }
 
-double	reduce(std::vector<TermNode>& terms, size_t degree)
-{
-	std::vector<TermNode>::iterator	 current_term;
-	std::vector<TermNode>::iterator	 end_term;
-	double coef = 0.0;
-	bool first_term_found = false;
-
-
-	std::cout << "degree:" << degree << "\n";
-	current_term = terms.begin();
-	end_term = terms.end();
-	for (; current_term != end_term; ++current_term)
-	{
-		if (current_term->getExponent() == degree)
-		{
-			if (first_term_found)
-            {
-				current_term->print();
-                coef += std::stod(current_term->getCoefficient());
-                current_term = terms.erase(current_term);
-				std::cout << " erased\n";
-               	--current_term;
-				end_term = terms.end();
-            }
-            else
-            {
-                coef += std::stod(current_term->getCoefficient());
-                first_term_found = true;
-            }
-		}
-	}
-	std::cout << std::endl;
-	for (auto it = terms.begin(); it != terms.end(); ++it)
-	{
-		it->print();
-		std::cout << std::endl;
-	}
-	return coef;
-}
-
-std::vector<TermNode> getTerms(RPNNode* node)
+std::vector<TermNode>	Parser::getTerms(RPNNode* node)
 {
 	std::vector<TermNode> terms;
 	std::vector<TermNode>::iterator	 current_term;
@@ -435,6 +313,7 @@ std::vector<TermNode> getTerms(RPNNode* node)
 	getTermNodes(node, terms, false);
 	current_term = terms.begin();
 	end_term = terms.end();
+	/*
 	std::cout << std::endl;
 	for (auto it = terms.begin(); it != terms.end(); ++it)
 	{
@@ -442,13 +321,14 @@ std::vector<TermNode> getTerms(RPNNode* node)
 		std::cout << std::endl;
 	}
 	std::cout << std::endl;
+	*/
 
 	for (; current_term != end_term; ++current_term)
 	{
 		current_term->setCoefficient(std::to_string(reduce(terms, current_term->getExponent())));
 		//end_term = terms.end();
 	}
-
+	/*
 	for (auto it = terms.begin(); it != terms.end(); ++it)
 	{
 		it->print();
@@ -456,19 +336,20 @@ std::vector<TermNode> getTerms(RPNNode* node)
 	}
 	std::cout << std::endl;
 	std::cout << std::endl;
+	*/
 
 	for (auto it = terms.begin(); it != terms.end(); ++it)
 	{
-		std::cout << "coef:" << std::stod(it->getCoefficient()) << std::endl;
+		//std::cout << "coef:" << std::stod(it->getCoefficient()) << std::endl;
 		if (std::stod(it->getCoefficient()) == 0)
 		{
-				it->print();
+				//it->print();
                 it = terms.erase(it);
-				std::cout << " erased\n";
+				//std::cout << " erased\n";
 				--it;
 		}
 	}
-
+	std::cout << "Reduced form: ";
 	for (auto it = terms.begin(); it != terms.end(); ++it)
 	{
 		if (it->getCoefficient()[0] != '-')
@@ -478,112 +359,6 @@ std::vector<TermNode> getTerms(RPNNode* node)
 		it->print();
 	}
 	std::cout << " = 0" <<  std::endl;
+	printIrreducibleFormat(terms);
 	return terms;
 }
-
-void	solveEquation(std::vector<TermNode> terms)
-{
-	size_t	degree = 0;
-	double	constant_term = 0.0;
-	double	coef = 0.0;
-	double	coef_square = 0.0;
-
-	//root->printNormal();
-	//std::cout << std::endl;
-	for (auto it = terms.begin(); it != terms.end(); ++it)
-	{
-        if (it->getExponent() > degree)
-            degree = it->getExponent();
-	}
-	std::cout << "Polynomial degree: " << degree << std::endl;
-
-	if (degree > 2)
-	{
-		std::cout << "The polynomial degree is strictly greater than 2, I can't solve." << std::endl; 
-		return ;
-	}
-
-	if (degree == 0)
-	{
-		for (auto it = terms.begin(); it != terms.end(); ++it)
-		{
-			std::cout << it->getExponent() << std::endl;
-			if (it->getExponent() == 0)
-				constant_term = std::stod(it->getCoefficient());
-			else if (it->getExponent() == 1)
-				coef = std::stod(it->getCoefficient());
-			else if (it->getExponent() == 2)
-				coef_square = std::stod(it->getCoefficient());
-		}
-		if (constant_term != 0.0)
-			std::cout << "no solution" << std::endl;
-		else
-			std::cout << "infinte number of soluntions" << std::endl;
-	}
-	else if (degree == 1)
-	{
-		double solution;
-
-		for (auto it = terms.begin(); it != terms.end(); ++it)
-		{
-			std::cout << it->getExponent() << std::endl;
-			if (it->getExponent() == 0)
-				constant_term = std::stod(it->getCoefficient());
-			else if (it->getExponent() == 1)
-				coef = std::stod(it->getCoefficient());
-			else if (it->getExponent() == 2)
-				coef_square = std::stod(it->getCoefficient());
-		}
-		solution = -constant_term / coef;
-		std::cout << "The solution is:\n" << solution << std::endl;
-	}
-	else if (degree == 2)
-	{
-		double discriminant;
-
-		for (auto it = terms.begin(); it != terms.end(); ++it)
-		{
-			std::cout << it->getExponent() << std::endl;
-			if (it->getExponent() == 0)
-				constant_term = std::stod(it->getCoefficient());
-			else if (it->getExponent() == 1)
-				coef = std::stod(it->getCoefficient());
-			else if (it->getExponent() == 2)
-				coef_square = std::stod(it->getCoefficient());
-		}
-		std::cout << "constant_term : " << constant_term << std::endl;
-		std::cout << "coef : " << coef << std::endl;
-		std::cout << "coef_square : " << coef_square << std::endl;
-		// ax^2 + bx + c = 0, the discriminant is calculated as b^2 - 4ac
-		discriminant = coef * coef - 4 * coef_square * constant_term;
-		std::cout << "discriminant: " << discriminant << std::endl;
-		if (discriminant < 0.0)
-		{
-			std::complex<double> sqrt_discriminant = std::sqrt(std::complex<double>(discriminant, 0.0));
-			std::complex<double> solution1 = (-coef + sqrt_discriminant) / (2 * coef_square);
-			std::complex<double> solution2 = (-coef - sqrt_discriminant) / (2 * coef_square);
-
-			std::cout << "Discriminant is negative, no real solution." << std::endl;
-			std::cout << solution1.real() << "+" << solution1.imag() << "i" << std::endl;
-        	std::cout << solution2.real() << solution2.imag() << "i" << std::endl;
-			//std::cout << solution1 << std::endl;
-			//std::cout << solution2 << std::endl;
-		}
-		else if (discriminant == 0.0)
-		{
-			double solution = -coef / (2 * coef_square);
-			std::cout << "Discriminant is zero, the one solutions is:" << std::endl;;
-			std::cout << solution << std::endl;
-		}
-		else
-		{
-			double sqrt_discriminant = calculateSquareRoot(discriminant, 0.001);
-			double solution1 = (-coef + sqrt_discriminant) / (2 * coef_square);
-			double solution2 = (-coef - sqrt_discriminant) / (2 * coef_square);
-
-			std::cout << "Discriminant is strictly positive, the two solutions are:" << std::endl;;
-			std::cout << solution1 << std::endl;
-			std::cout << solution2 << std::endl;
-		}
-	}
-};
