@@ -2,6 +2,7 @@
 #define PARSER_HPP
 #include <stack>
 #include <regex>
+#include <complex>
 #include "Lexer.hpp"
 #include "RPNtree.hpp"
 
@@ -26,8 +27,6 @@ class Parser
 };
 
 std::vector<TermNode>	getTerms(RPNNode* node);
-void		reduceRightHandSide(RPNNode* node);
 double		calculateSquareRoot(double x, double precision);
 void		solveEquation(std::vector<TermNode> terms);
-void		solveEquation2(const RPNNode* root);
 #endif

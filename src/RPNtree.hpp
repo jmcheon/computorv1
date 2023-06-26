@@ -7,17 +7,12 @@ class BinaryOperatorNode;
 
 class RPNNode
 {
-	protected:
-	//	std::unique_ptr<RPNNode>	m_parent;
 	public:
 		virtual			~RPNNode() = default;
 		virtual void	printNormal() const = 0;
 		virtual void	print() const = 0;
 		virtual void	traverse() const = 0;
 		virtual std::string getValue() const = 0;
-	//	RPNNode*	getParent() const { return m_parent.get(); }
-	//	void		setParent(std::unique_ptr<RPNNode> parent) { m_parent = std::move(parent); }
-		virtual std::unique_ptr<RPNNode>	copy() = 0; 
 };
 
 class TermNode : public RPNNode

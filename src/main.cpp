@@ -29,7 +29,6 @@ int main(int argc, char** argv)
 			tree = parser.buildTree(rpn_tokens);
 			printNode(tree.get());
 			printTree(tree.get());
-			//reduceRightHandSide(tree.get());
 			terms = getTerms(tree.get());
 			//printTree(tree.get());
 			solveEquation(terms);

@@ -52,6 +52,8 @@ std::vector<Token>	Lexer::tokenize(const std::string& texts)
 			default:
 				if (current_token.m_type == TokenType::WHITESPACE)
 				{
+					if (is_equation)
+						is_equation = false;
 					endToken(current_token, tokens);
 					current_token.m_type = TokenType::IDENTIFIER;
 					current_token.m_value.append(1, *it);
