@@ -56,7 +56,7 @@ class IdentifierNode : public RPNNode
 	public:
 		explicit		IdentifierNode(std::string value) : m_value(value) {}
 
-		std::string		getValue() const { return m_value; }
+		std::string		getValue() const override { return m_value; }
 		void			printNormal() const override { std::cout << m_value << " "; }
 		void			print() const override { std::cout << m_value; }
 		void			traverse() const override { std::cout << m_value; }
