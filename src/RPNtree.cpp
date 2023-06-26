@@ -6,6 +6,14 @@ void	TermNode::debugPrint() const
 	std::cout << " ^ " << m_exponent << ")" << std::endl;
 }
 
+void	printTerms(std::vector<TermNode>& terms)
+{
+	std::cout << "\t<Terms>\n";
+	for (auto it = terms.begin(); it != terms.end() ; ++it)
+		it->debugPrint();
+	std::cout << std::endl;
+}
+
 void	printNode(const RPNNode* node)
 {
 	if (node)

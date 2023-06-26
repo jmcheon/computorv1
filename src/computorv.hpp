@@ -7,5 +7,6 @@
 
 void		solveEquation(std::vector<TermNode> terms);
 double		reduce(std::vector<TermNode>& terms, size_t degree);
+void		printReducedFormat(std::vector<TermNode>& terms);
 void		printIrreducibleFormat(std::vector<TermNode>& terms);
 #endif

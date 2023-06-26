@@ -4,11 +4,9 @@ double	reduce(std::vector<TermNode>& terms, size_t degree)
 {
 	std::vector<TermNode>::iterator	 current_term;
 	std::vector<TermNode>::iterator	 end_term;
-	double coef = 0.0;
-	bool first_term_found = false;
+	double	coef = 0.0;
+	bool	first_term_found = false;
 
-
-	//std::cout << "degree:" << degree << "\n";
 	current_term = terms.begin();
 	end_term = terms.end();
 	for (; current_term != end_term; ++current_term)
@@ -18,31 +16,34 @@ double	reduce(std::vector<TermNode>& terms, size_t degree)
 			if (first_term_found)
             {
 				//current_term->print();
-                //coef += std::stod(current_term->getCoefficient());
-				//std::cout << (current_term->getCoefficient()) << std::endl;
                 coef += extractCoefficient(current_term->getCoefficient());
                 current_term = terms.erase(current_term);
-				//std::cout << " erased\n";
                	--current_term;
 				end_term = terms.end();
             }
             else
             {
-                //coef += std::stod(current_term->getCoefficient());
                 coef += extractCoefficient(current_term->getCoefficient());
                 first_term_found = true;
             }
 		}
 	}
-	/*
-	std::cout << std::endl;
+	//printTerms(terms);
+	return coef;
+}
+
+void	printReducedFormat(std::vector<TermNode>& terms)
+{
+	std::cout << "Reduced form: ";
 	for (auto it = terms.begin(); it != terms.end(); ++it)
 	{
+		if (it->getCoefficient()[0] != '-')
+			std::cout << " + ";
+		else
+			std::cout << " ";
 		it->print();
-		std::cout << std::endl;
 	}
-	*/
-	return coef;
+	std::cout << " = 0" <<  std::endl;
 }
 
 void	printIrreducibleFormat(std::vector<TermNode>& terms)
@@ -86,7 +87,6 @@ void	solveEquation(std::vector<TermNode> terms)
 	{
 		for (auto it = terms.begin(); it != terms.end(); ++it)
 		{
-			//std::cout << it->getExponent() << std::endl;
 			if (it->getExponent() == 0)
 				constant_term = std::stod(it->getCoefficient());
 			else if (it->getExponent() == 1)
@@ -105,7 +105,6 @@ void	solveEquation(std::vector<TermNode> terms)
 
 		for (auto it = terms.begin(); it != terms.end(); ++it)
 		{
-			//std::cout << it->getExponent() << std::endl;
 			if (it->getExponent() == 0)
 				constant_term = std::stod(it->getCoefficient());
 			else if (it->getExponent() == 1)
@@ -126,7 +125,6 @@ void	solveEquation(std::vector<TermNode> terms)
 
 		for (auto it = terms.begin(); it != terms.end(); ++it)
 		{
-			//std::cout << it->getExponent() << std::endl;
 			if (it->getExponent() == 0)
 				constant_term = std::stod(it->getCoefficient());
 			else if (it->getExponent() == 1)

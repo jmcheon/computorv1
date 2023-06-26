@@ -1,13 +1,5 @@
 #include "Parser.hpp"
 
-void	printTokens(std::vector<Token>& tokens)
-{
-	std::cout << "\t\t <Print tokenized tokens>\n";
-	std::cout << "example: Token(token type, text, token number)\n\n";
-	for (auto it = tokens.begin(); it != tokens.end() ; ++it)
-		it->debugPrint();
-}
-
 int main(int argc, char** argv)
 {
 	Lexer	lexer;
@@ -42,6 +34,8 @@ int main(int argc, char** argv)
 			std::cout << std::endl;
 
 			terms = parser.getTerms(tree.get());
+			printReducedFormat(terms);
+			printIrreducibleFormat(terms);
 			//printTree(tree.get());
 			solveEquation(terms);
 		}
@@ -49,7 +43,6 @@ int main(int argc, char** argv)
 		{
 			std::cout << "Exception caught: " << e.what() << std::endl;
 		}
-		//printTokens(tokens);
 	}
 	else
 	{

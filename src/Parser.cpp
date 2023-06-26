@@ -24,7 +24,6 @@ std::vector<Token> Parser::convertToRPN(const std::vector<Token>& tokens)
 				runtimeException("Invalid token type encountered");
         }
     }
-
     while (!operator_stack.empty())
 	{
         if (operator_stack.top().m_type == TokenType::WHITESPACE)
@@ -32,7 +31,6 @@ std::vector<Token> Parser::convertToRPN(const std::vector<Token>& tokens)
         output_queue.push_back(operator_stack.top());
         operator_stack.pop();
     }
-
     return output_queue;
 }
 
@@ -56,7 +54,6 @@ void	Parser::extractTermTokens(const RPNNode* node, std::vector<Token>& tokens)
 		token.m_token_num = 0;
 		tokens.push_back(token);
 	}
-	//std::cout << std::endl;
 }
 
 bool	Parser::isValidTerm(std::vector<Token>& tokens)
@@ -179,13 +176,8 @@ void	Parser::extractTermFromStack(std::unique_ptr<RPNNode>& node, std::string* v
 
 	tokens.clear();
 	extractTermTokens(node.get(), tokens);
-	//for (auto& token : tokens)
-		//token.debugPrint();
-	//std::cout << std::endl;
+	//printTokens(tokens);
 	current_variable = extractTerm(node, tokens, is_neg);
-
-	//std::cout << "current var:" << current_variable << std::endl;
-
 	if (*variable != current_variable)
 	{
 		if (variable->empty())
@@ -260,10 +252,7 @@ std::unique_ptr<RPNNode>	Parser::buildTree(std::vector<Token>& rpn_tokens)
 			runtimeException("Invalid equation: Unexpected symbol", token.m_value);
 	}
 	if (stack.size() != 1)
-	{
-		//std::cout << stack.size() << std::endl;
 		runtimeException("Invalid equation: Too many operands");
-	}
 	if (!valid_equation)
 		runtimeException("Invalid syntax: equation not found");
 	return std::move(stack.top());
@@ -313,52 +302,18 @@ std::vector<TermNode>	Parser::getTerms(RPNNode* node)
 	getTermNodes(node, terms, false);
 	current_term = terms.begin();
 	end_term = terms.end();
-	/*
-	std::cout << std::endl;
-	for (auto it = terms.begin(); it != terms.end(); ++it)
-	{
-		it->print();
-		std::cout << std::endl;
-	}
-	std::cout << std::endl;
-	*/
+	//printTerms(terms);
 
 	for (; current_term != end_term; ++current_term)
-	{
 		current_term->setCoefficient(std::to_string(reduce(terms, current_term->getExponent())));
-		//end_term = terms.end();
-	}
-	/*
+	//printTerms(terms);
 	for (auto it = terms.begin(); it != terms.end(); ++it)
 	{
-		it->print();
-		std::cout << std::endl;
-	}
-	std::cout << std::endl;
-	std::cout << std::endl;
-	*/
-
-	for (auto it = terms.begin(); it != terms.end(); ++it)
-	{
-		//std::cout << "coef:" << std::stod(it->getCoefficient()) << std::endl;
 		if (std::stod(it->getCoefficient()) == 0)
 		{
-				//it->print();
                 it = terms.erase(it);
-				//std::cout << " erased\n";
 				--it;
 		}
 	}
-	std::cout << "Reduced form: ";
-	for (auto it = terms.begin(); it != terms.end(); ++it)
-	{
-		if (it->getCoefficient()[0] != '-')
-			std::cout << " + ";
-		else
-			std::cout << " ";
-		it->print();
-	}
-	std::cout << " = 0" <<  std::endl;
-	printIrreducibleFormat(terms);
 	return terms;
 }

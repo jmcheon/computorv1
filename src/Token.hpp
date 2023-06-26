@@ -2,6 +2,7 @@
 #define TOKEN_HPP
 #include <iostream>
 #include <string>
+#include <vector>
 
 enum class TokenType
 {
@@ -27,4 +28,6 @@ class Token
 		void		debugPrint() const;
 		void		printRPN() const;
 };
+
+void	printTokens(std::vector<Token>& tokens);
 #endif

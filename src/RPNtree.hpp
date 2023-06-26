@@ -2,6 +2,7 @@
 #define RPNTREE_HPP
 #include <iostream>
 #include <memory>
+#include <vector>
 
 class BinaryOperatorNode;
 
@@ -45,7 +46,6 @@ class TermNode : public RPNNode
 		void		print() const override { std::cout << m_coefficient << "*" << m_variable << "^" << m_exponent; }
 		void		traverse() const override { std::cout << m_coefficient << "*" << m_variable << "^" << m_exponent; }
 		void		debugPrint() const;
-		std::unique_ptr<RPNNode>	copy() { std::make_unique<TermNode>(getCoefficient(), getVariable(), getExponent()); }
 };
 
 class IdentifierNode : public RPNNode
@@ -60,7 +60,6 @@ class IdentifierNode : public RPNNode
 		void			printNormal() const override { std::cout << m_value << " "; }
 		void			print() const override { std::cout << m_value; }
 		void			traverse() const override { std::cout << m_value; }
-		std::unique_ptr<RPNNode>	copy() { std::make_unique<IdentifierNode>(getValue()); }
 };
 
 class BinaryOperatorNode : public RPNNode
@@ -95,10 +94,9 @@ class BinaryOperatorNode : public RPNNode
 		void			print() const override { m_left->print(); m_right->print(); std::cout << m_operator; }
 		void			traverse() const override { std::cout << m_operator; }
 		void			swapChildNodes() { std::swap(m_left, m_right); }
-		//std::unique_ptr<RPNNode>	copy(RPNNode* node) { std::make_unique<BinaryOperatorNode>(getOperator(), std::make_unique<RPNNode>(getLeft()), std::make_unique<RPNNode>(getRight())); }
-		std::unique_ptr<RPNNode>	copy() { return nullptr; }
 };
 
+void	printTerms(std::vector<TermNode>& terms);
 void	printNode(const RPNNode* node);
 void	printTree(const RPNNode* node, bool leftview=false);
 void	printTreeRightview(const std::string& prefix, const RPNNode* node, bool is_left);

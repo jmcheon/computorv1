@@ -9,3 +9,12 @@ void	Token::printRPN() const
 {
 	std::cout << m_value;
 }
+
+void	printTokens(std::vector<Token>& tokens)
+{
+	std::cout << "\t\t <Print tokenized tokens>\n";
+	std::cout << "example: Token(token type, text, token number)\n\n";
+	for (auto it = tokens.begin(); it != tokens.end() ; ++it)
+		it->debugPrint();
+	std::cout << std::endl;
+}
