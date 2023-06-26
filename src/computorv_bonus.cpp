@@ -68,6 +68,8 @@ void	solveEquation(std::vector<TermNode> terms)
 	double	coef = 0.0;
 	double	coef_square = 0.0;
 
+	//root->printNormal();
+	//std::cout << std::endl;
 	for (auto it = terms.begin(); it != terms.end(); ++it)
 	{
         if (it->getExponent() > degree)
@@ -110,6 +112,10 @@ void	solveEquation(std::vector<TermNode> terms)
 			else if (it->getExponent() == 2)
 				coef_square = std::stod(it->getCoefficient());
 		}
+		std::cout << std::endl;
+		std::cout << "coefficient of degree 0 : " << constant_term << std::endl;
+		std::cout << "coefficient of degree 1 : " << coef << std::endl;
+		std::cout << std::endl;
 		solution = -constant_term / coef;
 		std::cout << "The solution is:\n" << solution << std::endl;
 	}
@@ -126,8 +132,14 @@ void	solveEquation(std::vector<TermNode> terms)
 			else if (it->getExponent() == 2)
 				coef_square = std::stod(it->getCoefficient());
 		}
+		std::cout << std::endl;
+		std::cout << "coefficient of degree 0 : " << constant_term << std::endl;
+		std::cout << "coefficient of degree 1 : " << coef << std::endl;
+		std::cout << "coefficient of degree 2 : " << coef_square << std::endl;
 		// ax^2 + bx + c = 0, the discriminant is calculated as b^2 - 4ac
 		discriminant = coef * coef - 4 * coef_square * constant_term;
+		std::cout << "discriminant: " << discriminant << std::endl;
+		std::cout << std::endl;
 		if (discriminant < 0.0)
 		{
 			std::complex<double> sqrt_discriminant = std::sqrt(std::complex<double>(discriminant, 0.0));

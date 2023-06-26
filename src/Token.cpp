@@ -1,5 +1,11 @@
 #include "Token.hpp"
 
+const char* sTokenTypeStrings[] = {
+	"WHITESPACE",
+	"OPERATOR",
+	"IDENTIFIER",
+};
+
 void	Token::debugPrint() const
 {
 	std::cout << "Token(" << sTokenTypeStrings[static_cast<int>(m_type)];

@@ -49,6 +49,7 @@ void	Parser::extractTermTokens(const RPNNode* node, std::vector<Token>& tokens)
     }
     if (const IdentifierNode* identifier_node = dynamic_cast<const IdentifierNode*>(node))
 	{
+		(void)identifier_node;
 		token.m_type = TokenType::IDENTIFIER;
 		token.m_value = node->getValue();
 		token.m_token_num = 0;
@@ -297,7 +298,6 @@ std::vector<TermNode>	Parser::getTerms(RPNNode* node)
 	std::vector<TermNode> terms;
 	std::vector<TermNode>::iterator	 current_term;
 	std::vector<TermNode>::iterator	 end_term;
-	double	coef = 0.0;
 
 	getTermNodes(node, terms, false);
 	current_term = terms.begin();

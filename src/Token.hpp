@@ -4,17 +4,13 @@
 #include <string>
 #include <vector>
 
+extern const char* sTokenTypeStrings[];
+
 enum class TokenType
 {
 	WHITESPACE,
 	OPERATOR,
 	IDENTIFIER,
-};
-
-static const char* sTokenTypeStrings[] = {
-	"WHITESPACE",
-	"OPERATOR",
-	"IDENTIFIER",
 };
 
 class Token

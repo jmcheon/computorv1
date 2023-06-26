@@ -19,8 +19,8 @@ class RPNNode
 class TermNode : public RPNNode
 {
 	private:
-		std::string	m_variable;
 		std::string	m_coefficient;
+		std::string	m_variable;
 		size_t		m_exponent;
 
 	public:
