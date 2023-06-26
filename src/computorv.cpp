@@ -1,6 +1,6 @@
 #include "computorv.hpp"
 
-double	reduce(std::vector<TermNode>& terms, size_t degree)
+double	reduceEquation(std::vector<TermNode>& terms, size_t degree)
 {
 	std::vector<TermNode>::iterator	 current_term;
 	std::vector<TermNode>::iterator	 end_term;

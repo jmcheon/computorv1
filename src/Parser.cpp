@@ -305,7 +305,7 @@ std::vector<TermNode>	Parser::getTerms(RPNNode* node)
 	//printTerms(terms);
 
 	for (; current_term != end_term; ++current_term)
-		current_term->setCoefficient(std::to_string(reduce(terms, current_term->getExponent())));
+		current_term->setCoefficient(std::to_string(reduceEquation(terms, current_term->getExponent())));
 	//printTerms(terms);
 	for (auto it = terms.begin(); it != terms.end(); ++it)
 	{
