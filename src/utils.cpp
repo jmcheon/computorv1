@@ -121,4 +121,3 @@ double	extractCoefficient(std::string str)
 	int denominator = std::stoi(str.substr(pos + 1));
 	return static_cast<double>(numerator) / denominator;
 }
-

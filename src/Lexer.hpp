@@ -6,8 +6,8 @@
 class Lexer 
 {
 	public:
-		std::vector<Token>	 			tokenize(const std::string& texts);
+		std::vector<Token>	tokenize(const std::string& texts);
 	private:
-		void			 				endToken(Token& token, std::vector<Token>& tokens);
+		void				endToken(Token& token, std::vector<Token>& tokens);
 };
 #endif

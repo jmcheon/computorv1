@@ -4,8 +4,6 @@
 #include <memory>
 #include <vector>
 
-class BinaryOperatorNode;
-
 class RPNNode
 {
 	public:
@@ -65,24 +63,24 @@ class IdentifierNode : public RPNNode
 class BinaryOperatorNode : public RPNNode
 {
 	private:
-		std::string							m_operator;
-		std::unique_ptr<RPNNode>			m_left;
-		std::unique_ptr<RPNNode>			m_right;
+		std::string					m_operator;
+		std::unique_ptr<RPNNode>	m_left;
+		std::unique_ptr<RPNNode>	m_right;
 
 
 	public:
 		BinaryOperatorNode(std::string op, std::unique_ptr<RPNNode> left, std::unique_ptr<RPNNode> right) : m_operator(op), m_left(std::move(left)), m_right(std::move(right)) {}
 
-		std::string			getOperator() const { return m_operator; }
-		RPNNode*			getLeft() const { return m_left.get(); }
-		RPNNode*			getRight() const { return m_right.get(); }
-		std::string			getValue() const override { return m_operator; }
+		std::string	getOperator() const { return m_operator; }
+		RPNNode*	getLeft() const { return m_left.get(); }
+		RPNNode*	getRight() const { return m_right.get(); }
+		std::string	getValue() const override { return m_operator; }
 
-		void				setOperator(std::string op) { m_operator = op; }
-		void				setLeft(std::unique_ptr<RPNNode> node) { m_left = std::move(node); }
-		void				setRight(std::unique_ptr<RPNNode> node) { m_right = std::move(node); }
+		void		setOperator(std::string op) { m_operator = op; }
+		void		setLeft(std::unique_ptr<RPNNode> node) { m_left = std::move(node); }
+		void		setRight(std::unique_ptr<RPNNode> node) { m_right = std::move(node); }
 
-		void			printNormal() const override 
+		void		printNormal() const override 
 		{
 			if (getRight())
 				getRight()->printNormal();
@@ -91,9 +89,9 @@ class BinaryOperatorNode : public RPNNode
 				getLeft()->printNormal();
 			
 		}
-		void			print() const override { m_left->print(); m_right->print(); std::cout << m_operator; }
-		void			traverse() const override { std::cout << m_operator; }
-		void			swapChildNodes() { std::swap(m_left, m_right); }
+		void		print() const override { m_left->print(); m_right->print(); std::cout << m_operator; }
+		void		traverse() const override { std::cout << m_operator; }
+		void		swapChildNodes() { std::swap(m_left, m_right); }
 };
 
 void	printTerms(std::vector<TermNode>& terms);

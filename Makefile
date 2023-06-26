@@ -60,5 +60,4 @@ re: fclean all
 bonus: $(BONUS_OBJS)
 	$(CC) $(CFLAGS) -o $(NAME) $(BONUS_OBJS) -I $(INCLUDES)
 
-.PHONY : all clean fclean re
-
+.PHONY : all clean fclean re bonus
