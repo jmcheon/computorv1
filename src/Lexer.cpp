@@ -22,8 +22,7 @@ std::vector<Token>	Lexer::tokenize(const std::string& texts)
 			case '-':
 				if (current_token.m_token_num == 0 || is_equation) 
 				{
-					if (is_equation)
-						is_equation = false;
+					is_equation = false;
 					endToken(current_token, tokens);
 					current_token.m_type = TokenType::IDENTIFIER;
 					current_token.m_value.append(1, *it);

@@ -25,6 +25,9 @@ class Parser
 		bool			isValidTerm(std::vector<Token>& tokens);
 };
 
+std::vector<TermNode>	getTerms(RPNNode* node);
+void		reduceRightHandSide(RPNNode* node);
 double		calculateSquareRoot(double x, double precision);
-void		solveEquation(const RPNNode* root);
+void		solveEquation(std::vector<TermNode> terms);
+void		solveEquation2(const RPNNode* root);
 #endif

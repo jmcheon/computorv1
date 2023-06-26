@@ -308,7 +308,13 @@ std::unique_ptr<RPNNode>	Parser::buildTree(std::vector<Token>& rpn_tokens)
 			stack.pop();
 			std::unique_ptr<RPNNode> left = std::move(stack.top());
 			stack.pop();
-			stack.push(std::make_unique<BinaryOperatorNode>(token.m_value, std::move(left), std::move(right)));
+			std::unique_ptr<RPNNode> parent = std::make_unique<BinaryOperatorNode>(token.m_value, std::move(left), std::move(right));
+
+			//std::unique_ptr<TermNode> right_term_node = std::unique_ptr<TermNode>(static_cast<TermNode*>(right.release()));
+			//right->setParent(std::move(parent));
+			//std::unique_ptr<TermNode> left_term_node = std::unique_ptr<TermNode>(static_cast<TermNode*>(left.release()));
+			//left->setParent(std::move(parent));
+			stack.push(std::move(parent));
 			if (token.m_value == "=")
 			{
 				if (!valid_equation)
@@ -382,19 +388,253 @@ void getCoefficients(const RPNNode* node, double& constant_term, double& coef, d
     }
 }
 
-void	reduceEquation(const RPNNode* root)
+void getTermNodes(RPNNode* node, std::vector<TermNode>& terms, bool equal_sign)
 {
+	if (TermNode* term_node = dynamic_cast<TermNode*>(node))
+	{
+		//term_node->print();
+		//std::cout << ", " << equal_sign << std::endl;
+		if (equal_sign == true)
+		{
+			if (term_node->getCoefficient()[0] != '-')
+				term_node->setCoefficient("-" + term_node->getCoefficient());
+			else
+				term_node->setCoefficient(term_node->getCoefficient().substr(1, 1));
+		}
+		terms.push_back(*term_node);
+	}
+    if (const BinaryOperatorNode* binary_node = dynamic_cast<const BinaryOperatorNode*>(node))
+    {
+		if (binary_node->getOperator() == "=")
+		{
+
+			equal_sign = true;
+        	getTermNodes(binary_node->getLeft(), terms, equal_sign);
+			equal_sign = false;
+			//std::cout << "(All nodes to the right of the equals sign)" << std::endl;
+        	getTermNodes(binary_node->getRight(), terms, equal_sign);
+		}
+		else
+		{
+			//equal_sign = false;
+        	getTermNodes(binary_node->getLeft(), terms, equal_sign);
+        	getTermNodes(binary_node->getRight(), terms, equal_sign);
+		}
+    }
 }
 
-void	solveEquation(const RPNNode* root)
+double	reduce(std::vector<TermNode>& terms, size_t degree)
+{
+	double coef = 0.0;
+
+	for (auto it = terms.begin(); it != terms.end(); ++it)
+	{
+		if (it->getExponent() == degree)
+			coef += std::stod(it->getCoefficient());
+	}
+	return coef;
+}
+
+std::vector<TermNode> getTerms(RPNNode* node)
+{
+	std::vector<TermNode> reduced_terms;
+	std::vector<TermNode> terms;
+	double	coef = 0.0;
+
+	getTermNodes(node, terms, false);
+	std::cout << std::endl;
+	for (auto it = terms.begin(); it != terms.end(); ++it)
+	{
+		if (it->getCoefficient()[0] != '-')
+			std::cout << " + ";
+		else
+			std::cout << " ";
+		it->print();
+	}
+	std::cout << " = 0" <<  std::endl;
+	return terms;
+}
+
+void reduceRightHandSide(RPNNode* node)
+{
+	if (node == nullptr)
+		return ;
+	//moveLeftmostToRightmost(node);
+	//return ;
+    BinaryOperatorNode* binary_node = dynamic_cast<BinaryOperatorNode*>(node);
+    if (binary_node)
+    {
+        if (binary_node->getOperator() == "=")
+        {
+			//std::unique_ptr<RPNNode> left(binary_node->getLeft());
+			//std::unique_ptr<RPNNode> right(binary_node->getRight());
+			RPNNode* left = binary_node->getLeft();
+			RPNNode* right = binary_node->getRight();
+			std::cout << "op:" << binary_node->getOperator() << std::endl;
+
+			RPNNode* rightest_from_lefthand = left;
+			while (BinaryOperatorNode* current_binary = dynamic_cast<BinaryOperatorNode*>(rightest_from_lefthand))
+			{
+				if (current_binary->getRight() != nullptr)
+					rightest_from_lefthand = current_binary->getRight();
+			}
+
+			RPNNode* rightest_from_righthand = right;
+			while (BinaryOperatorNode* current_binary = dynamic_cast<BinaryOperatorNode*>(rightest_from_righthand))
+			{
+				if (current_binary->getRight() != nullptr)
+					rightest_from_righthand = current_binary->getRight();
+			}
+
+			rightest_from_lefthand->print();
+			std::cout << std::endl;
+			rightest_from_righthand->print();
+			std::cout << std::endl;
+
+
+			if (TermNode* term_node = dynamic_cast<TermNode*>(rightest_from_lefthand))
+			{
+				std::unique_ptr<RPNNode> l = std::make_unique<TermNode>(term_node->getCoefficient(), term_node->getVariable(), term_node->getExponent());
+				if (TermNode* right_term_node = dynamic_cast<TermNode*>(right))
+				{
+					std::unique_ptr<RPNNode> r = std::make_unique<TermNode>(right_term_node->getCoefficient(), right_term_node->getVariable(), right_term_node->getExponent());
+					std::unique_ptr<RPNNode> new_binary = std::make_unique<BinaryOperatorNode>("+", std::move(l), std::move(r));
+					binary_node->setRight(std::move(new_binary));
+				}
+				else if (BinaryOperatorNode* right_node = dynamic_cast<BinaryOperatorNode*>(right))
+				{
+					//std::unique_ptr<RPNNode> new_binary = std::make_unique<BinaryOperatorNode>("+", std::move(l), std::move(right_node));
+					//binary_node->setRight(std::move(new_binary));
+				}
+			}
+
+			std::unique_ptr<RPNNode> new_term = std::make_unique<TermNode>("0", "1", 0);
+			std::unique_ptr<RPNNode> copy = std::move(new_term->copy());
+			//std::unique_ptr<RPNNode> copy = std::make_unique<TermNode>("0", "1", 0);
+			std::unique_ptr<RPNNode> co = std::move(dynamic_cast<TermNode*>(rightest_from_lefthand)->copy());
+			//co->print();
+			//std::unique_ptr<RPNNode> copy = std::make_unique<RPNNode>(*new_term);
+			//std::unique_ptr<RPNNode> new_binary = std::make_unique<BinaryOperatorNode>("+", std::unique_ptr<RPNNode>(rightest_from_lefthand), std::unique_ptr<RPNNode>(right));
+			//std::unique_ptr<RPNNode> new_binary = std::make_unique<BinaryOperatorNode>("+", nullptr, nullptr);
+			//printTree(new_binary.get());
+			binary_node->setLeft(std::move(new_term));
+			//binary_node->setRight(std::move(new_term));
+			//printTree(right);
+			//current->setRight(std::unique_ptr<RPNNode>(left));
+			//reduceRightHandSide(binary_node->getRight());
+        }
+	}
+}
+
+void	solveEquation(std::vector<TermNode> terms)
 {
 	size_t	degree = 0;
 	double	constant_term = 0.0;
 	double	coef = 0.0;
 	double	coef_square = 0.0;
 
-	root->printNormal();
-	std::cout << std::endl;
+	//root->printNormal();
+	//std::cout << std::endl;
+	for (auto it = terms.begin(); it != terms.end(); ++it)
+	{
+        if (it->getExponent() > degree)
+            degree = it->getExponent();
+	}
+	//getMaxDegree(root, degree);
+	std::cout << "Polynomial degree: " << degree << std::endl;
+
+	if (degree > 2)
+	{
+		std::cout << "The polynomial degree is strictly greater than 2, I can't solve." << std::endl; 
+		return ;
+	}
+
+	if (degree == 0)
+	{
+		for (auto it = terms.begin(); it != terms.end(); ++it)
+		{
+			std::cout << it->getExponent() << std::endl;
+			if (it->getExponent() == 0)
+				constant_term = std::stod(it->getCoefficient());
+			else if (it->getExponent() == 1)
+				coef = std::stod(it->getCoefficient());
+			else if (it->getExponent() == 2)
+				coef_square = std::stod(it->getCoefficient());
+		}
+		//getCoefficients(root, constant_term, coef, coef_square);
+		if (constant_term != 0.0)
+			std::cout << "no solution" << std::endl;
+		else
+			std::cout << "infinte number of soluntions" << std::endl;
+	}
+	else if (degree == 1)
+	{
+		double solution;
+
+		for (auto it = terms.begin(); it != terms.end(); ++it)
+		{
+			std::cout << it->getExponent() << std::endl;
+			if (it->getExponent() == 0)
+				constant_term = std::stod(it->getCoefficient());
+			else if (it->getExponent() == 1)
+				coef = std::stod(it->getCoefficient());
+			else if (it->getExponent() == 2)
+				coef_square = std::stod(it->getCoefficient());
+		}
+		solution = -constant_term / coef;
+		std::cout << "The solution is:\n" << solution << std::endl;
+	}
+	else if (degree == 2)
+	{
+		double discriminant;
+
+		for (auto it = terms.begin(); it != terms.end(); ++it)
+		{
+			std::cout << it->getExponent() << std::endl;
+			if (it->getExponent() == 0)
+				constant_term = std::stod(it->getCoefficient());
+			else if (it->getExponent() == 1)
+				coef = std::stod(it->getCoefficient());
+			else if (it->getExponent() == 2)
+				coef_square = std::stod(it->getCoefficient());
+		}
+		std::cout << "constant_term : " << constant_term << std::endl;
+		std::cout << "coef : " << coef << std::endl;
+		std::cout << "coef_square : " << coef_square << std::endl;
+		// ax^2 + bx + c = 0, the discriminant is calculated as b^2 - 4ac
+		discriminant = coef * coef - 4 * coef_square * constant_term;
+		std::cout << "discriminant: " << discriminant << std::endl;
+		if (discriminant < 0.0)
+			std::cout << "Discriminant is negative, no real solution." << std::endl;
+		else if (discriminant == 0.0)
+		{
+			double solution = -coef / (2 * coef_square);
+			std::cout << "Discriminant is zero, the one solutions is:" << std::endl;;
+			std::cout << solution << std::endl;
+		}
+		else
+		{
+			double sqrt_discriminant = calculateSquareRoot(discriminant, 0.001);
+			double solution1 = (-coef + sqrt_discriminant) / (2 * coef_square);
+			double solution2 = (-coef - sqrt_discriminant) / (2 * coef_square);
+
+			std::cout << "Discriminant is strictly positive, the two solutions are:" << std::endl;;
+			std::cout << solution1 << std::endl;
+			std::cout << solution2 << std::endl;
+		}
+	}
+};
+
+
+void	solveEquation2(const RPNNode* root)
+{
+	size_t	degree = 0;
+	double	constant_term = 0.0;
+	double	coef = 0.0;
+	double	coef_square = 0.0;
+
+	//root->printNormal();
+	//std::cout << std::endl;
 	getMaxDegree(root, degree);
 	std::cout << "Polynomial degree: " << degree << std::endl;
 
@@ -442,7 +682,6 @@ void	solveEquation(const RPNNode* root)
 		else
 		{
 			double sqrt_discriminant = calculateSquareRoot(discriminant, 0.001);
-			//double sqrt_discriminant = std::sqrt(discriminant);
 			double solution1 = (-coef + sqrt_discriminant) / (2 * coef_square);
 			double solution2 = (-coef - sqrt_discriminant) / (2 * coef_square);
 

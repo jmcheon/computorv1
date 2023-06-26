@@ -12,6 +12,7 @@ int main(int argc, char** argv)
 {
 	Lexer	lexer;
 	Parser	parser;
+	std::vector<TermNode> terms;
 	std::vector<Token> tokens;
 	std::vector<Token> rpn_tokens;
 	std::unique_ptr<RPNNode> tree;
@@ -26,9 +27,12 @@ int main(int argc, char** argv)
 				token.printRPN();
 			std::cout << std::endl;
 			tree = parser.buildTree(rpn_tokens);
-			//printNode(tree.get());
+			printNode(tree.get());
 			printTree(tree.get());
-			solveEquation(tree.get());
+			//reduceRightHandSide(tree.get());
+			terms = getTerms(tree.get());
+			//printTree(tree.get());
+			solveEquation(terms);
 		}
 		catch (const std::exception& e)
 		{
