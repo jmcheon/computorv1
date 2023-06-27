@@ -20,7 +20,7 @@ std::vector<Token>	Lexer::tokenize(const std::string& texts)
 				break ;
 			case '+':
 			case '-':
-				if (current_token.m_token_num == 0 || is_equation) 
+				if ((tokens.size() == 0 && !current_token.m_value[0]) || is_equation) 
 				{
 					is_equation = false;
 					endToken(current_token, tokens);

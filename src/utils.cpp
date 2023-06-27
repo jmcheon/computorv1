@@ -90,7 +90,7 @@ int calculateGCD(int a, int b)
     return calculateGCD(b, a % b);
 }
 
-void convertToIrreducibleFraction(double number)
+void convertToIrreducibleFraction(double number, bool first_term)
 {
     // Convert the decimal number to a fraction by multiplying it by a power of 10
     int numerator = static_cast<int>(number * 100000);
@@ -105,7 +105,9 @@ void convertToIrreducibleFraction(double number)
 		denominator *= -1;
 		numerator *= -1;
 	}
-	if (denominator == 1)
+	if (denominator == 1 && numerator < 0 && !first_term)
+    	std::cout << "- " << -numerator;
+	else if (denominator == 1)
     	std::cout << numerator;
 	else
     	std::cout << numerator << "/" << denominator;

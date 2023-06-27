@@ -214,6 +214,8 @@ std::unique_ptr<RPNNode>	Parser::buildTree(std::vector<Token>& rpn_tokens)
 	std::string			variable;
 	bool				valid_equation = false;
 
+	if (rpn_tokens.size() == 0)
+		runtimeException("Invalid input: what is this?");
 	for (Token& token : rpn_tokens)
 	{
 		//token.debugPrint();

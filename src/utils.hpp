@@ -25,7 +25,7 @@ bool 	hasHigherPrecedence(const Token& op1, const Token& op2);
 
 double	calculateSquareRoot(double x, double precision);
 int		calculateGCD(int a, int b);
-void 	convertToIrreducibleFraction(double number);
+void 	convertToIrreducibleFraction(double number, bool first_term = false);
 double	extractCoefficient(std::string str);
 
 #endif

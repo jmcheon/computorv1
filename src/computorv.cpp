@@ -135,8 +135,16 @@ void	solveEquation(std::vector<TermNode> terms)
 			std::complex<double> solution2 = (-coef - sqrt_discriminant) / (2 * coef_square);
 
 			std::cout << "Discriminant is negative, no real solution." << std::endl;
-			std::cout << solution1.real() << "+" << solution1.imag() << "i" << std::endl;
-        	std::cout << solution2.real() << solution2.imag() << "i" << std::endl;
+			if (solution2.imag() < 0)
+			{
+				std::cout << solution1.real() << "+" << solution1.imag() << "i" << std::endl;
+        		std::cout << solution2.real() << solution2.imag() << "i" << std::endl;
+			}
+			else if (solution1.imag() < 0)
+			{
+        		std::cout << solution1.real() << solution1.imag() << "i" << std::endl;
+				std::cout << solution2.real() << "+" << solution2.imag() << "i" << std::endl;
+			}
 			//std::cout << solution1 << std::endl;
 			//std::cout << solution2 << std::endl;
 		}
