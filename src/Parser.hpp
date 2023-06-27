@@ -21,5 +21,4 @@ class Parser
 		void			getTermNodes(RPNNode* node, std::vector<TermNode>& terms, bool equal_sign);
 };
 
-void		solveEquation(std::vector<TermNode> terms);
 #endif

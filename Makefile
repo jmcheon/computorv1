@@ -5,16 +5,16 @@ SRCS_DIR = src/
 INCLUDES = ./
 
 SRCS =	main.cpp \
-		utils.cpp \
 		computorv.cpp \
+		utils.cpp \
 		Token.cpp \
       	Lexer.cpp \
 		Parser.cpp \
 		RPNtree.cpp \
 
-BONUS_SRCS =	main_bonus.cpp \
-		utils.cpp \
+BONUS_SRCS = main_bonus.cpp \
 		computorv_bonus.cpp \
+		utils.cpp \
 		Token.cpp \
       	Lexer.cpp \
 		Parser.cpp \
