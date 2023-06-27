@@ -115,14 +115,28 @@ std::string	Parser::extractTerm(std::unique_ptr<RPNNode>& node, std::vector<Toke
 	{
 		if (isNumber(current_token->m_value))
 		{
-			term->setCoefficient(current_token->m_value);
-			term->setExponent("0");
+			if (current_token->m_value[0] == '+')
+			{
+				term->setCoefficient(current_token->m_value.substr(1, current_token->m_value.length()));
+				term->setExponent("0");
+			}
+			else
+			{
+				term->setCoefficient(current_token->m_value);
+				term->setExponent("0");
+			}
 		}
 		else
 		{
 			if (current_token->m_value[0] == '-')
 			{
 				term->setCoefficient(std::string("-1", 2));
+				variable = current_token->m_value[1];
+				term->setVariable(variable);
+			}
+			else if (current_token->m_value[0] == '+')
+			{
+				term->setCoefficient(std::string("1", 1));
 				variable = current_token->m_value[1];
 				term->setVariable(variable);
 			}
@@ -140,6 +154,12 @@ std::string	Parser::extractTerm(std::unique_ptr<RPNNode>& node, std::vector<Toke
 			if (current_token->m_value[0] == '-')
 			{
 				term->setCoefficient(std::string("-1", 2));
+				variable = current_token->m_value[1];
+				term->setVariable(variable);
+			}
+			else if (current_token->m_value[0] == '+')
+			{
+				term->setCoefficient(std::string("1", 1));
 				variable = current_token->m_value[1];
 				term->setVariable(variable);
 			}
